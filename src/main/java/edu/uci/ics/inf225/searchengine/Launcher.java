@@ -16,7 +16,7 @@ public class Launcher {
 		try {
 			controller.start();
 			controller.shutdown();
-		} catch (SQLException e) {
+		} catch (SQLException | ClassNotFoundException e) {
 			console.error("DB could not be accessed: {}", e.getMessage());
 		} catch (IOException e) {
 			console.error("Problem occurred when shutting down: {}", e.getMessage());

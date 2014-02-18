@@ -15,7 +15,7 @@ public class SearchEngineController {
 	public SearchEngineController() {
 	}
 
-	public void start() throws SQLException {
+	public void start() throws SQLException, ClassNotFoundException {
 		indexer = new Indexer();
 		PageTokenizer tokenizer = new PageTokenizer();
 

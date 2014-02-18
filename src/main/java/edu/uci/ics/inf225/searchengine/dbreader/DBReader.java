@@ -22,6 +22,8 @@ public class DBReader {
 
 	private static final String DB_PATH = "db/crawlerdb";
 
+	private static final int PAGES_TO_READ = 5; // -1 for unlimited.
+
 	private Connection conn = null;
 
 	private static final Logger log = LoggerFactory.getLogger(DBReader.class);
@@ -49,7 +51,7 @@ public class DBReader {
 		this.tokenizer = tokenizer;
 	}
 
-	public void connect() throws Exception {
+	public void connect() throws ClassNotFoundException, SQLException {
 		Class.forName("org.hsqldb.jdbcDriver");
 		conn = DriverManager.getConnection("jdbc:hsqldb:file:" + DB_PATH, "sa", "");
 	}
@@ -60,7 +62,8 @@ public class DBReader {
 		conn.close();
 	}
 
-	public void readDB() throws SQLException {
+	public void readDB() throws SQLException, ClassNotFoundException {
+		connect();
 		Statement st = null;
 		ResultSet rs = null;
 		st = conn.createStatement();
@@ -69,12 +72,14 @@ public class DBReader {
 																		// query
 
 		// do something with the result set.
-		while (rs.next()) {
+		long i = 0L;
+		while (rs.next() && (PAGES_TO_READ > -1 && i < PAGES_TO_READ)) {
 			String url = rs.getString(1);
 			String title = rs.getString(2);
 			try {
 				String content = IOUtils.toString(rs.getClob(3).getCharacterStream());
 				this.passPage(url, title, content);
+				i++;
 			} catch (IOException e) {
 				log.error("Page {} could not be processed: {}", url, e.getMessage());
 			}

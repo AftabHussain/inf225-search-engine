@@ -9,45 +9,26 @@ import org.junit.Test;
 
 public class DuplicateFilterTest {
 
+	private static final String URL = "http://www.ics.uci.edu";
+
 	@Test
 	public void testIsDuplicate() {
 
 		DuplicateFilter df = new DuplicateFilter();
-		Assert.assertEquals("Failed to determine page's uniqueness", false,
-				df.isDuplicate("aftab"));
-		
-		String str1= getContents("1.txt");
-		String str2= getContents("2.txt");
-		/*
-		 * Assert.assertEquals("Failed to determine page's uniqueness", "aftab",
-		 * df.uniquePageList);
-		 */
-	    System.out.println(1);
-		Assert.assertEquals("Failed to determine page's uniqueness", true,
-				df.isDuplicate("aftab"));
-		System.out.println(2);
-		Assert.assertEquals("Failed to determine page's uniqueness", false,
-				df.isDuplicate("hussain"));
-		System.out.println(3);
-		Assert.assertEquals("Failed to determine page's uniqueness", true,
-				df.isDuplicate("hussain"));
-		System.out.println(4);
-		Assert.assertEquals("Failed to determine page's uniqueness", false,
-				df.isDuplicate("aftaaaaaaaaaaaaaaaaaaaaaaaaab"));
-		System.out.println(5);
-		Assert.assertEquals("Failed to determine page's uniqueness", true,
-				df.isDuplicate("aftaaaaaaaaaaaaaaaaaaaaaaaaabn"));
-		System.out.println(6);
-		Assert.assertEquals("Failed to determine page's uniqueness", false,
-				df.isDuplicate(str1));
-		System.out.println(7);
-		Assert.assertEquals("Failed to determine page's uniqueness", true,
-				df.isDuplicate(str2));
-		//System.out.println("asdf");
-		
+		Assert.assertEquals("Failed to determine page's uniqueness", false, df.isDuplicate(URL, "aftab"));
+
+		String str1 = getContents("1.txt");
+		String str2 = getContents("2.txt");
+
+		Assert.assertEquals("Failed to determine page's uniqueness", true, df.isDuplicate(URL, "aftab"));
+		Assert.assertEquals("Failed to determine page's uniqueness", false, df.isDuplicate(URL, "hussain"));
+		Assert.assertEquals("Failed to determine page's uniqueness", true, df.isDuplicate(URL, "hussain"));
+		Assert.assertEquals("Failed to determine page's uniqueness", false, df.isDuplicate(URL, "aftaaaaaaaaaaaaaaaaaaaaaaaaab"));
+		Assert.assertEquals("Failed to determine page's uniqueness", true, df.isDuplicate(URL, "aftaaaaaaaaaaaaaaaaaaaaaaaaabn"));
+		Assert.assertEquals("Failed to determine page's uniqueness", false, df.isDuplicate(URL, str1));
+		Assert.assertEquals("Failed to determine page's uniqueness", true, df.isDuplicate(URL, str2));
+
 	}
-	
-	
 
 	private String getContents(String filename) {
 		try {

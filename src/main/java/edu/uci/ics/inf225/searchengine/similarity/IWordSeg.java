@@ -3,7 +3,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * @author zhangcheng
+ * Code taken from https://github.com/sing1ee/simhash-java.
  *
  */
 public interface IWordSeg {

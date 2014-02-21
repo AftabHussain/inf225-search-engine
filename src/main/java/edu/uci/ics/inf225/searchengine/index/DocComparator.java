@@ -3,12 +3,12 @@ package edu.uci.ics.inf225.searchengine.index;
 import java.util.Comparator;
 import java.util.Map;
 
-public class docComparator implements Comparator<String> {
+public class DocComparator implements Comparator<String> {
 	// Note: this comparator imposes orderings that are inconsistent with
 	// equals.
-	Map<String, DocMap> base;
+	Map<String, TermInDoc> base;
 
-	public docComparator(Map<String, DocMap> base) {
+	public DocComparator(Map<String, TermInDoc> base) {
 		this.base = base;
 	}
 

@@ -24,16 +24,27 @@ public class PageTokenizerTest {
 	}
 
 	@Test
-	public void testPageIsProperlyTokenized() throws IOException {
+	public void testTXTPageIsProperlyTokenized() throws IOException {
 		final String title = "Information Retrieval";
 		final String content = "We love Information Retrieval in Winter 2014. It's our today's opinion";
-
-		tokenizer.tokenize(URL, title, content);
-
 		final Token[] expectedTokens = { token("love", 2), token("information", 1), token("retrieval", 1), token("winter", 2), token("2014", 1), token("today", 3), token("opinion", 1) };
 
+		assertTokenizedContentIsRight(title, content, expectedTokens);
+	}
+
+	private void assertTokenizedContentIsRight(final String title, final String content, final Token[] expectedTokens) throws IOException {
+		tokenizer.tokenize(URL, title, content);
 		System.out.println("Obtained tokens: " + indexer.observedTokens);
 		indexer.assertTokens(Arrays.asList(expectedTokens));
+	}
+
+	@Test
+	public void testHTMLPageIsProperlyTokenized() throws IOException {
+		final String title = "Information Retrieval";
+		final String content = "<html><title>" + title + "</title><body>We love Information Retrieval in Winter 2014. It's our today's opinion</body></html>";
+		final Token[] expectedTokens = { token("love", 2), token("information", 1), token("retrieval", 1), token("winter", 2), token("2014", 1), token("today", 3), token("opinion", 1) };
+
+		assertTokenizedContentIsRight(title, content, expectedTokens);
 	}
 
 	private Token token(String term, int deltapos) {

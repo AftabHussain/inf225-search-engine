@@ -24,6 +24,14 @@ public class Indexer {
 
 	private Index index;
 
+	public Indexer() {
+		this.index = new Index();
+	}
+
+	public Index getIndex() {
+		return index;
+	}
+
 	public void indexTerm(String term, String url, int position) {
 		this.index.indexTerm(term, url, position);
 	}
@@ -93,8 +101,7 @@ public class Indexer {
 	 */
 
 	public void save() throws IOException {
-		ObjectOutputStream stream = new ObjectOutputStream(
-				new FileOutputStream(INDEX_FILENAME));
+		ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(INDEX_FILENAME));
 
 		console.info("Saving index to {}...", INDEX_FILENAME);
 		stream.writeObject(this.index);
@@ -103,8 +110,7 @@ public class Indexer {
 	}
 
 	public void load() throws ClassNotFoundException, IOException {
-		ObjectInputStream stream = new ObjectInputStream(new FileInputStream(
-				INDEX_FILENAME));
+		ObjectInputStream stream = new ObjectInputStream(new FileInputStream(INDEX_FILENAME));
 
 		console.info("Loading index from {}...", INDEX_FILENAME);
 		this.index = (Index) stream.readObject();

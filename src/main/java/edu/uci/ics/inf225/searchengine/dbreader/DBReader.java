@@ -11,11 +11,11 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.uci.ics.inf225.searchengine.similarity.Filter;
+import edu.uci.ics.inf225.searchengine.similarity.DuplicateFilter;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageTokenizer;
 
 /**
- * @author Rezvan
+ * @author Matias Giorgio.
  * 
  */
 public class DBReader {
@@ -28,18 +28,18 @@ public class DBReader {
 
 	private static final Logger log = LoggerFactory.getLogger(DBReader.class);
 
-	private Filter filter;
+	private DuplicateFilter filter;
 
 	private PageTokenizer tokenizer;
 
 	public DBReader() {
 	}
 
-	public Filter getFilter() {
+	public DuplicateFilter getFilter() {
 		return filter;
 	}
 
-	public void setFilter(Filter filter) {
+	public void setFilter(DuplicateFilter filter) {
 		this.filter = filter;
 	}
 
@@ -57,6 +57,7 @@ public class DBReader {
 	}
 
 	public void shutdown() throws SQLException {
+		this.filter.shutdown();
 		Statement st = conn.createStatement();
 		st.execute("SHUTDOWN");
 		conn.close();
@@ -88,7 +89,7 @@ public class DBReader {
 	}
 
 	private boolean passPage(String url, String title, String content) throws IOException {
-		if (filter.isUnique(url, content)) {
+		if (!filter.isDuplicate(url, content)) {
 			tokenizer.tokenize(url, title, content);
 			return true;
 		} else {

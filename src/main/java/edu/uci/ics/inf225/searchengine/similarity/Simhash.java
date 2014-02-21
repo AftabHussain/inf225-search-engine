@@ -1,9 +1,9 @@
 package edu.uci.ics.inf225.searchengine.similarity;
-import java.util.Arrays;
+
 import java.util.List;
 
 /**
- * @author zhangcheng
+ * Code taken from https://github.com/sing1ee/simhash-java.
  * 
  */
 public class Simhash {

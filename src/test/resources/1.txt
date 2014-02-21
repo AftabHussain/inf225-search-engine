@@ -1,0 +1,389 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>department of computer science @ the university of california, irvine</title>
+<meta content="atJc4T0DS30kboHJm4YPyyn4g6vFgIwPIMbHA2INHQg=" name="verify-v1"/>
+<meta content="wnU2T3dZ2vgHjWiqXzsFBY7tYlNvmisuJ5s9TWfQEvM=" name="verify-v1"/>
+<link href="bin/styles/stylesheet_index-2012.css" rel="stylesheet" type="text/css"/><!--[if IE]>
+        <link rel="stylesheet" type="text/css" href="/bin/styles/all-ie-only.css" />
+   <![endif]-->
+<link href="/bin/styles/agile_carousel.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+  <meta content="Wed, 19 Feb 2014 10:44:24 -0320" name="date"/>  <script language="JavaScript" type="text/javascript">
+<!-- 
+function clear_textbox()
+{
+if (document.searchform.q.value == "Search ICS")
+document.searchform.q.value = "";
+} 
+-->
+</script>
+<h1 class="ahem">This site will look much better in a browser that supports <a href="http://www.webstandards.org/upgrade/" title="Download a browser that complies with Web standards.">web standards</a>, but it is accessible to any browser or Internet device.</h1>
+<div id="wrapper"><script type="text/javascript">
+
+sfHover = function() {
+    var sfEls = document.getElementById("navcontainer").getElementsByTagName("LI");
+    for (var i=0; i<sfEls.length; i++) {
+        sfEls[i].onmouseover=function() {
+            this.className+=" sfhover";
+        }
+        sfEls[i].onmouseout=function() {
+            this.className=this.className.replace(new RegExp(" sfhover\\b"), "");
+        }
+    }
+}
+if (window.attachEvent) window.attachEvent("onload", sfHover);
+
+</script>
+
+
+
+
+
+      <STYLE>
+
+         #school_header {
+             background-image: url("/bin/img/UCI-DBSICS-banner-grey-760x52.png");
+             background-repeat: no-repeat;
+             NOTbackground: #7A7A7A;
+             width: 760px;
+             height: 52px;
+             margin-bottom: 0;
+         }
+         
+         #school_header a {
+                 display: block;
+                 position: absolute;
+         }
+         
+
+         #dept_header {
+               background:#283659;
+               width: 760px;
+               height: 52px;
+               color: white;
+               font-size: 200%;
+               padding-left: 0.5em;
+               display: table-cell;
+               vertical-align: middle; 
+         }
+
+         #dept_header a {
+                 display: block;
+                 //position: absolute;
+                 color: white;
+                 text-decoration: none;
+         }
+         
+         
+         
+         #school_header #bren_link {
+            border: 0 dotted orange;
+            top: 0;
+            width: 760px;
+            height: 52px;
+         }
+         
+         #dept_header #dept_link {
+            border: 0 dotted purple;
+            
+         }
+
+         #school_header, #dept_header { line-height: 52px; }
+         
+
+
+      </STYLE>
+
+
+
+      <div id="school_header" title="Welcome to the Donald Bren School of Information and Computer Sciences @ UC Irvine">
+
+         <a id="bren_link" href="http://www.ics.uci.edu"></a>
+
+      </div>
+
+
+
+      <DIV ID="dept_header">
+         <A ID="dept_link" HREF="/">Department of Computer Science</A>
+      </DIV>
+
+    
+    
+    <!--  <div CLASS="newbar"><p style="line-height: 0px; display: none; "></p></div>  -->
+
+
+
+    
+    
+<div id="navcontainer">
+
+
+<ul>
+
+<li ><a href="/about/index.php" title="About">&raquo; About</a>
+                            <ul>
+                        <li><a href="/about/contact.php">&raquo; Contact </a></li>
+                        <li><a href="/about/chair.php">&raquo; Chair's Message </a></li>
+                        
+                        <!-- <li><a href="#">&raquo; Facts and Figures</a></li> -->
+                        
+                    </ul>               
+</li>
+
+<li ><a href="#" title="People">&raquo; People</a>
+                            <ul>
+                        <li><a href="/faculty/index.php">&raquo; Faculty</a></li>
+                        <li><a href="/staff/index.php">&raquo; Staff</a></li>
+                    </ul>               
+</li>
+
+<li ><a href="#" title="Research">&raquo; Research</a>
+                            <ul>
+                        <li><a href="/research/areas.php">&raquo; Research Areas</a></li>
+                        <li><a href="/research/centers.php">&raquo; Research Centers</a></li>
+                    </ul>               
+</li>
+
+<li ><a href="http://www.ics.uci.edu/grad/" title="Graduate education">&raquo; Graduate</a>
+</li>
+
+<li ><a href="http://www.ics.uci.edu/ugrad/" title="Undergraduate education">&raquo; Undergraduate</a>
+</li>
+
+
+
+
+
+<!--
+<li ><a href="/news/" title="News">&raquo; News</a></li>
+
+<li ><a href="/contact/" title="Contact">&raquo; Contact</a></li>
+-->
+
+
+
+</ul>
+
+
+
+<style type="text/css">@import url("http://www.ics.uci.edu/bin/icssearchstyle/css/icssearch.css");</style>
+
+<script src="http://www.ics.uci.edu/bin/icssearchstyle/js/icssearch.js" type="text/javascript"></script>
+
+<script src="http://www.ics.uci.edu/bin/icssearchstyle/js/icssearchform.js" type="text/javascript"></script>
+    
+    
+    
+</div><div id="mainbox">
+<div align="center">
+<div class="slideshow" id="flavor_1">
+<div class="agile_carousel" style="overflow: hidden; position: relative; width: 760px; height: 340px;">
+<div class="slides" style="width: 760px; height: 340px;"><link href="http://www.ics.uci.edu/bin/styles/agile_carousel.css" rel="stylesheet" type="text/css"/>
+<script src="http://www.ics.uci.edu/bin/js/jquery.v1.6.2.min.js"></script>
+<script src="http://www.ics.uci.edu/bin/js/agile_carousel.a1.1.min.js"></script>
+<script>
+
+   jQuery.noConflict();  
+
+   jQuery.getJSON("/bin/inc/agile_carousel_data.php", function(data) {
+        jQuery(document).ready(function(){
+            jQuery("#flavor_1").agile_carousel({
+                carousel_data: data,
+                carousel_outer_height: 340,
+                carousel_height: 340,
+                slide_height: 340,
+                carousel_outer_width: 760,
+                slide_width: 760,
+                transition_time: 900,
+                timer: 10000,
+                continuous_scrolling: true,
+
+                transition_type: "fade",
+
+                control_set_1: "numbered_buttons",
+                NOTno_control_set: "hover_previous_button,hover_next_button"
+            });
+        });
+    });
+
+</script></div>
+</div>
+</div>
+</div>
+<div id="wrapper_bottom">
+<div id="bar">
+<p style="line-height: 0px;"></p>
+</div>
+<div class="righttable" id="latest_news">
+<h3>Latest News</h3>
+<div id="new_news_list"><div></div>
+<ul>
+<!-- -->
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2014_mehrotra_dasfaa">Mehrotra and team receive DASFAA 10-year Best Paper Award</a></li>
+<!-- -->
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2014_carey_li_asterixdb">Carey and Li receive $1.1 million in funding for AsterixDB research</a></li>
+<!-- -->
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2014_sadowski_zeller_sbv_improver_competition">ICS grad students take second place in sbv IMPROVER competition</a></li>
+<!-- -->
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=321">ACM Press Room: &#8220;ACM Names Fellows for Computing Advances&#8221; (Dechter and Smyth mentioned)</a></li>
+<!-- -->
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#fall_2013_access_features_regans_article_on_vehicular_communication_networks">ACCESS features Regan&#8217;s article on vehicular communication networks</a></li>
+<!-- -->
+<!-- -->
+<!-- -->
+<!-- -->
+<!-- -->
+<!--
+<li><a href="http://www.ics.uci.edu/community/news/spotlight/spotlight_uci_constructors_acm">UCI team takes 2nd in regional ACM competition, invited to finals in Russia</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=308">Coast Magazine: &#8220;The Revolution Will Be Virtual-ized&#8221; (IVECG featured)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=303">OC Register: &#8220;Google guys strike gold&#8221; (Bren School Google Ph.D. fellows featured)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=138">UC Irvine professors honored by ACM for transforming science and society</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#fall_2013_bannister_wins_best_presentation_award">Bannister wins best presentation award at 21st International Symposium on Graph Drawing</a>
+</li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#fall_2013_tsudik_to_co-chair_seminar_keynote_two_conferences">Tsudik to co-chair seminar, keynote two conferences</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2013_tsudik_delivers_keynote_at_ieee_trustcom-13">Tsudik delivers keynote at IEEE TrustCom-13</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=289">OC Register: &#8220;Technology with a Conscience&#8221; by Chen Li</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2013_baldi_selected_as_iscb_fellow">Baldi selected as ISCB Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2013_ihler_receives_nsf_career_award">Ihler receives NSF CAREER Award</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2013_smyth_serves_as_program_chair_for_uai_2013">Smyth serves as program chair for UAI 2013</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2013_brock_awarded_data_science_for_social_good_fellowship">Brock awarded Data Science for Social Good fellowship</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=282">2013 IEEE Intercollegiate Game Showcase (UCI mentioned)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=130">Search-software company founded by Prof. Li establishes "Pay It Forward" program</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=128">UC Irvine researchers unveil AsterixDB for Big Data management</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2013_tsudik_awarded_astor_visiting_lecturership">Tsudik awarded Astor Visiting Lecturership</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2013_cs_team_receives_acm_icmr_best_paper_award">CS team receives ACM ICMR Best Paper Award</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2013_smyth_presents_talk_at_siam_international_conference_on_data_mining">Smyth presents talk at SIAM International Conference on Data Mining</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/spotlight/spotlight_tsudik_a_whole_new_class.php">Tsudik spearheads major security classification overhaul</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2013_harris_student_receive_best_paper_cyber_security">Harris, student receive Best Paper Cyber Security </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=264">The New York Times: &#8220;A Big Data Weapon for the Mobile Ad Challenge&#8221; (Jain quoted)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2013_fowlkes_receives_nsf_career_award">Fowlkes receives NSF CAREER Award </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2013_assembling_complete_individual_genomes_xie_li_awarded_662k_nih_grant">Assembling complete individual genomes: Xie, Li awarded $662K NIH grant </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2013_meenakshisundaram_mukherjee_receive_best_paper_award_at_icvgip_2012">Meenakshisundaram, Mukherjee receive best paper award at ICVGIP</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2013_enhancing_privacy_in_embedded_systems_tsudik_receives_grant_from_bosch">Enhancing Privacy in Embedded Systems: Tsudik receives grant from Bosch</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2013_li_mehrotra_receive_dasfaa_10_year_best_paper_award">Li, Mehrotra receive DASFAA 10-year Best Paper Award </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#winter_2013_nsf_awards_500k_grant_to_welling_shahbaba">NSF awards $500K grant to Welling, Shahbaba </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=122">UCI team finds new target for treating wide spectrum of cancers</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#fall_2012_eppstein_receives_gd2012_best_paper_award">Eppstein receives GD2012 best paper award </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=242">KPCC: &#8220;Are you my father? There&#8217;s an app for that&#8221; (Tsudik interviewed)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=239">KTLA 5: &#8220;UCI Develops App That Stores DNA Info on Smartphones&#8221; (Tsudik interviewed)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=234">OC Register: &#8220;Store your DNA on a smartphone&#8221; (Tsudik quoted)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#fall_2012_tsudik_receives_95k_from_cisco">Securing the Internet&#8217;s next generation: Tsudik receives $95K from Cisco  </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=120">Professor Gene Tsudik named IEEE Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=119">Chancellor's Professor Pierre Baldi named ACM Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=216">Phys.Org: &#8220;Physical systems could yield powerful quantum computers&#8221; (Irani quoted) </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=217">ninemsm: &#8220;The internet never forgets&#8221; (Tsudik quoted) </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2012_newman_receives_120k_from_nsf">Newman receives $120K from NSF  </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2012_franz_software_diversity_patent_and_grant">Franz wins a U.S. Patent on software diversity and over $900,000 in new grant funding to investigate software diversity  </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2012_newman_awarded_300k_from_nsf">Newman awarded $300K from NSF  </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#summer_2012_icml_best_paper_welling">ICML 2012 best paper award goes to Welling and students </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2012_acm_open_virtual_3d_world_baldi_lopes">ACM publication features open virtual 3-D world developed by Baldi, Lopes </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2012_uci_team_wins_sigmod_test-of-time_award">UCI team wins SIGMOD Test-of-Time Award </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/spotlight/spotlight_nsf_fellows_2012">Two graduate students receive prestigious NSF fellowship</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index#spring_2012_doctoral_student_receives_award_from_yahoo_labs_key_scientific_challenges_program">Doctoral student receives award from Yahoo! Labs Key Scientific Challenges Program</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#Four_faculty_recognized_by_ACM">Eppstein named ACM Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#Baldi_named_IEEE_Fellow">Baldi named IEEE Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=114">CS welcomes new faculty member</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=199">Amazon's Fire may rekindle net neutrality debate</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#fall_2011_smyth_iarpa_grants">Padhraic Smyth awarded $2.9M by Office of the Director of National Intelligence</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#summer2011_students_recognized_by_yahoo_and_ieee_acm">Students recognized by Yahoo! and IEEE, ACM </a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#franz_wins_large_darpa_award">Franz Wins Large DARPA Award</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#ramanan_collaborates_on_next-generation_visual_computing">Ramanan Collaborates on Next-Generation Visual Computing</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#li_xie_nih_grant_for_mining_biomedical_literature">Li, Xie awarded $371,000 NIH grant for searching biomedical literature</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#dechter_2010_uai_challenge">Dechter et al place first in the 2010 UAI Challenge</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=177">Re-thinking the Internet with security and mobility in mind (Tsudik)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=176">Future Internet Architecture Awards (Tsudik)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/articles/view_article?id=173">Computer Scientists Secure NSF Grant for Developing Nano-Scale Technologies (Dutt, Nicolau)</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=111">Dutt and Nicolau lead UCI effort in NSF's $10 million award on robust software</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#alumnus_named_juan_de_la_cierva_fellow">Alumnus named Juan de la Cierva Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/press/view_press?id=109">Smyth named AAAI Fellow</a></li>
+<li><a href="http://www.ics.uci.edu/community/news/notes/index.php#irani_receives_academic_senates_distinguished_awards"> Irani receives 2010-11 Academic Senate's Distinguished Award </a></li>
+&gt;
+<li><a href="http://www.ics.uci.edu/community/news/">more &#187;</a></li>
+</ul>
+-->
+</ul></div>
+</div>
+<div class="righttable" id="upcoming_events">
+<h3>Degrees</h3>
+<p>
+<b>Undergraduate</b> <br/><a href="http://www.ics.uci.edu/ugrad/degrees/degree_cs.php">
+  BS in Computer Science </a><br/><a href="http://www.ics.uci.edu/ugrad/degrees/degree_ics.php">
+  BS in Infomation and Computer Science </a><br/><a href="http://www.ics.uci.edu/ugrad/degrees/degree_cse.php">
+  BS in Computer Science and Engineering </a></p>
+<p>
+<b>Graduate</b> <br/><a href="http://www.ics.uci.edu/grad/degrees/index.php?track=cs">
+  MS and PhD in Computer Science</a><br/><a href="http://www.networkedsystems.uci.edu/overview.html">
+  MS and PhD in Networked Systems </a></p></div>
+<div class="righttable" id="spotlight">
+<h3>CS Seminar Series</h3>
+<br/>
+<b> &#8220;<span>Data Privacy and Security in Cloud Computing</span>&#8221; </b>
+<p>
+Friday, February 21, 2014 <br/>
+11:00am - 12:00pm <br/>
+Donald Bren Hall 6011</p>
+<p>
+<strong>Roberto Tamassia</strong> <br/>
+Brown University</p>
+<p><a href="/research/seminarseries/index.php?quarter_id=Winter&amp;id=63">more information &#187;</a></p></div>
+</div>
+<div id="bar" style="margin-top: 0.5em; margin-bottom: 0.5em;">
+<p style="line-height: 0px;"></p>
+</div>
+<div id="links_bottom"><div style="float: left; margin-right: 1em; margin-left: 1em; border: 0px dotted grey;">
+   <form name="quicklinksform">
+   <span style="color: #66aa66; font-weight: bold;">Quick Links </span>
+      <select name="linkselect" onchange="location.href=quicklinksform.linkselect.options[selectedIndex].value">
+         <option value="#"> - select a page - </option>
+         <option value="http://www.ics.uci.edu/computing/index.php">Computing support</option>
+         <option value="http://www.cs.uci.edu/research/seminarseries/">CS Seminar Series</option>
+         <option value="http://www.ics.uci.edu/about/search/index.php">Find faculty and staff&#160;</option>
+         <option value="http://www.ics.uci.edu/supportICS">Giving to the Bren School</option>
+         <option value="http://www.ics.uci.edu/grad/degrees/index.php">Graduate degrees</option>
+         <option value="http://www.ics.uci.edu/community/icsjobs/index.php">ics.jobs</option>
+         <option value="http://www.ics.uci.edu/community/friends/proj125/index.php">Project ICS </option>
+         <option value="http://www.ics.uci.edu/prospective">Prospective undergraduates</option>
+         <option value="http://www.ics.uci.edu/about/about_safety.php">Safety procedures </option>
+         <option value="http://www.ics.uci.edu/ugrad/degrees/index.php">Undergraduate degrees</option>
+      </select>
+      </form>
+</div>
+<div id="socmed_icons" style="float: right;">
+<!--
+<div style="float: left; width: 148px; margin-right: 90px; border: 0px dotted grey;">
+      <a href="http://www.ucifuture.com/"><img alt="Shaping the Future Campaign" id="shaping_the_future" src="/ICS/computerscience/bin/img/logos/shapingthefuturecampaign-wideblue.png" style="width: 146; height: 32px; float: none;" height="50" width="228" /></a>
+   </div>
+-->
+<a href="http://youtube.com/UCIBrenICS">
+         <img alt="YouTube" border="0" class="icon32" height="64" src="bin/img/logos/youtube.png" width="64"/></a>
+      <a href="http://flickr.com/BrenSchool">
+         <img alt="Flickr" border="0" class="icon32" height="64" src="bin/img/logos/flickr.png" width="64"/></a>
+      <a href="http://twitter.com/UCIbrenICS">
+         <img alt="Twitter" border="0" class="icon32" src="bin/img/logos/twitter.png"/></a>
+      <a href="http://facebook.com/UCIBrenICS">
+         <img alt="Facebook" border="0" class="icon32" src="bin/img/logos/facebook.png"/></a>
+</div>
+<div style="clear: both;"></div></div>
+<div id="footer"><a href="http://www.uci.edu/copyright.php">Copyright Inquiries</a> |
+   <a href="http://www.uci.edu/cgi-bin/phonebook">UCI Directory</a> |
+   <a href="http://intranet.ics.uci.edu/">Intranet</a> |
+   
+   <!-- <a href="http://www.ics.uci.edu/sitemap.php">Site Map</a> | -->
+ 
+  <a href="mailto: i%63%73%77%65%62m%61s%74%65r@%69c%73%2e%75c%69%2eedu">icswebmaster</a> |
+Updated: 
+February 19 2014</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+ <script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-605898-2");
+pageTracker._trackPageview();
+</script>
+</div>
+</div>
+</body>
+</html>

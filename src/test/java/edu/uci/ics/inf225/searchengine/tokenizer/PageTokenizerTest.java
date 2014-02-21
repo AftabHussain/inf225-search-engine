@@ -32,6 +32,7 @@ public class PageTokenizerTest {
 
 		final Token[] expectedTokens = { token("love", 2), token("information", 1), token("retrieval", 1), token("winter", 2), token("2014", 1), token("today", 3), token("opinion", 1) };
 
+		System.out.println("Obtained tokens: " + indexer.observedTokens);
 		indexer.assertTokens(Arrays.asList(expectedTokens));
 	}
 
@@ -48,6 +49,11 @@ public class PageTokenizerTest {
 			this.url = url;
 			this.token = token;
 			this.deltapos = deltapos;
+		}
+
+		@Override
+		public String toString() {
+			return token;
 		}
 
 		@Override

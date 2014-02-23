@@ -59,7 +59,7 @@ public class Simhash {
 		return hash;
 	}
 
-	public long simhash32(String doc) {
+	public int simhash32(String doc) {
 		int bitLen = 32;
 		int[] bits = new int[bitLen];
 		List<String> tokens = wordSeg.tokens(doc);

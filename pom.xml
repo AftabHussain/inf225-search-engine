@@ -138,5 +138,10 @@
 		<artifactId>jsoup</artifactId>
 		<version>1.7.3</version>
 	</dependency>
+  	<dependency>
+        <groupId>org.javolution</groupId>
+        <artifactId>javolution-core-java</artifactId>
+        <version>6.0.0</version>
+    </dependency>
   </dependencies>
 </project>

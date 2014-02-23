@@ -1,22 +1,44 @@
 package edu.uci.ics.inf225.searchengine.index;
 
-import java.util.ArrayList;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-public class Index {
+import javolution.util.FastMap;
+import javolution.util.function.Equalities;
 
-	private Map<String, Integer> docCount = new HashMap<String, Integer>();
-	private Map<String, Map<String, TermInDoc>> termsMap = new HashMap<String, Map<String, TermInDoc>>();
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class Index implements Externalizable {
+
+	private static final Logger log = LoggerFactory.getLogger(Index.class);
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	// private Map<String, Integer> docCount = new HashMap<String, Integer>();
+	// private Map<Long, String> docIDs = new HashMap<>(100000);
+	private Map<Long, String> docIDs = new FastMap<>();
+	// private Map<String, Map<Long, TermInDoc>> termsMap = new HashMap<String,
+	// Map<Long, TermInDoc>>(750000);
+
+	private Map<String, Map<Long, TermInDoc>> termsMap = new FastMap<>(Equalities.LEXICAL_FAST);
 
 	public Index() {
 	}
 
-	public Map<String, TermInDoc> docsForTerm(String term) {
+	public Map<Long, TermInDoc> docsForTerm(String term) {
 		if (termsMap.containsKey(term)) {
 			return termsMap.get(term);
 		} else {
@@ -29,7 +51,12 @@ public class Index {
 	 * @return The number of unique documents indexed.
 	 */
 	public int numberOfDocuments() {
-		return this.docCount.size();
+		// return this.docCount.size();
+		return this.docIDs.size();
+	}
+
+	public long numberOfUniqueTerms() {
+		return this.termsMap.keySet().size();
 	}
 
 	/**
@@ -40,62 +67,78 @@ public class Index {
 	 * @return The number of terms in the document.
 	 */
 	public int docFrequency(String doc) {
-		return this.docCount.get(doc);
+		// return this.docCount.get(doc);
+		return 0; // FIXME
 	}
 
-	public void indexTerm(String term, String url, int position) {
-		Map<String, TermInDoc> termPosting;
+	public void newDocument(String url, long docID) {
+		this.docIDs.put(docID, url);
+	}
 
-		// This Hashmap is for keeping the number of total documents
-		if (docCount.containsKey(url)) {
-			int DocFrequency = docCount.get(url);
-			docCount.put(url, DocFrequency + 1);
-		} else {
-			docCount.put(url, 1);
+	public void indexDoc(long docID, List<String> terms, List<Integer> positions) {
+		if (terms.size() != positions.size()) {
+			throw new IllegalArgumentException();
 		}
 
-		if (termsMap.containsKey(term)) {// we had inserted the token before
-			termPosting = new HashMap<String, TermInDoc>();
+		Iterator<String> termsIterator = terms.iterator();
+		Iterator<Integer> positionIterator = positions.iterator();
+
+		while (termsIterator.hasNext()) {
+			this.indexTerm(docID, termsIterator.next(), positionIterator.next());
+		}
+	}
+
+	public void indexTerm(long docID, String term, int position) {
+
+		Map<Long, TermInDoc> termPosting;
+		TermInDoc termInDoc;
+
+		synchronized (this) {
 			termPosting = termsMap.get(term);
-			if (termPosting.containsKey(url)) { // we had inserted the document
-												// before for this term
-				TermInDoc termInDoc = termPosting.get(url);
-				termInDoc.addPosition(position);
-				termInDoc.settermFrequency(termInDoc.gettermFrequency() + 1);
-				termPosting.put(url, termInDoc);
-			} else { // we had not inserted the document before for this term
-				List<Integer> positions = new ArrayList<Integer>();
-				positions.add(position);
-				TermInDoc docmap = new TermInDoc(url, 1, positions);
-				termPosting.put(url, docmap);
+
+			if (termPosting == null) {
+				termPosting = createEmptyPosting();
+				termsMap.put(term, termPosting);
 			}
-		} else {
-			List<Integer> positions = new ArrayList<Integer>();
-			positions.add(position);
-			termPosting = new HashMap<String, TermInDoc>();
-			termPosting.put(url, new TermInDoc(url, 1, positions));
-			termsMap.put(term, termPosting);
+
+			termInDoc = termPosting.get(docID);
+
+			if (termInDoc == null) {
+				termInDoc = createEmptyTermInDoc(docID);
+				termPosting.put(docID, termInDoc);
+			}
+			termInDoc.addPosition(position);
 		}
+
+		termInDoc.increaseTF();
+	}
+
+	private TermInDoc createEmptyTermInDoc(long docID) {
+		return new TermInDoc(docID, 0, new LinkedList<Integer>());
+	}
+
+	private Map<Long, TermInDoc> createEmptyPosting() {
+		// return new HashMap<Long, TermInDoc>();
+		return new FastMap<Long, TermInDoc>();
 	}
 
 	public void postProcess() {
 
-		int N = this.docCount.size();
+		int N = this.numberOfDocuments();
 
-		Iterator<Entry<String, Map<String, TermInDoc>>> it = this.termsMap.entrySet().iterator();
+		Iterator<Entry<String, Map<Long, TermInDoc>>> it = this.termsMap.entrySet().iterator();
 
 		while (it.hasNext()) {
-			Entry<String, Map<String, TermInDoc>> outerEntry = it.next();
+			Entry<String, Map<Long, TermInDoc>> outerEntry = it.next();
 			String term = (String) outerEntry.getKey();
-			Map<String, TermInDoc> innerMap = outerEntry.getValue();
+			Map<Long, TermInDoc> innerMap = outerEntry.getValue();
 			Integer docsSize = innerMap.size();
-			Iterator<Entry<String, TermInDoc>> innerIt = innerMap.entrySet().iterator();
+			Iterator<Entry<Long, TermInDoc>> innerIt = innerMap.entrySet().iterator();
 			while (innerIt.hasNext()) {
-				Entry<String, TermInDoc> innerEntry = innerIt.next();
+				Entry<Long, TermInDoc> innerEntry = innerIt.next();
 
-				String doc = (String) innerEntry.getKey();
 				TermInDoc termList = (TermInDoc) innerEntry.getValue();
-				termList.settfidf((float) (termList.gettermFrequency() * Math.log(N / docsSize)));
+				termList.setTfidf((float) (termList.getTf() * Math.log(N / docsSize)));
 				innerIt.remove();
 			}
 			it.remove(); // avoids a ConcurrentModificationException
@@ -103,16 +146,40 @@ public class Index {
 	}
 
 	public void sort() {
-		termsMap = new TreeMap<String, Map<String, TermInDoc>>(termsMap);
+		termsMap = new TreeMap<String, Map<Long, TermInDoc>>(termsMap);
 
-		Iterator<Entry<String, Map<String, TermInDoc>>> it = termsMap.entrySet().iterator();
+		Iterator<Entry<String, Map<Long, TermInDoc>>> it = termsMap.entrySet().iterator();
 		while (it.hasNext()) {
-			Entry<String, Map<String, TermInDoc>> outerEntry = it.next();
-			Map<String, TermInDoc> innerMap = outerEntry.getValue();
+			Entry<String, Map<Long, TermInDoc>> outerEntry = it.next();
+			Map<Long, TermInDoc> innerMap = outerEntry.getValue();
 			DocComparator bvc = new DocComparator(innerMap);
-			TreeMap<String, TermInDoc> sorted_map = new TreeMap<String, TermInDoc>(bvc);
+			TreeMap<Long, TermInDoc> sorted_map = new TreeMap<Long, TermInDoc>(bvc);
 			sorted_map.putAll(innerMap);
 			outerEntry.setValue(sorted_map);
 		}
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeObject(docIDs);
+		out.flush();
+		int i = 0;
+		out.writeInt(termsMap.size());
+		for (Entry<String, Map<Long, TermInDoc>> entry : termsMap.entrySet()) {
+			out.writeUTF(entry.getKey());
+			out.writeObject(entry.getValue());
+			i++;
+
+			if (i == 50000) {
+				out.flush();
+				i = 0;
+			}
+		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		// TODO Auto-generated method stub
+
 	}
 }

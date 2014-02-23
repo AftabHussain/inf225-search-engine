@@ -20,6 +20,7 @@ public class Launcher {
 			console.error("DB could not be accessed: {}", e.getMessage());
 		} catch (IOException e) {
 			console.error("Problem occurred when shutting down: {}", e.getMessage());
+			e.printStackTrace();
 		}
 	}
 }

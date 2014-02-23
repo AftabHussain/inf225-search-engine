@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.inf225.searchengine.dbreader.DBReader;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
-import edu.uci.ics.inf225.searchengine.similarity.DuplicateFilter;
+import edu.uci.ics.inf225.searchengine.similarity.IdenticalFilter;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageTokenizer;
 
 public class SearchEngineController {
@@ -29,7 +29,8 @@ public class SearchEngineController {
 
 		reader = new DBReader();
 
-		reader.setFilter(new DuplicateFilter());
+		// reader.setFilter(new DuplicateFilter());
+		reader.setFilter(new IdenticalFilter());
 		reader.setTokenizer(tokenizer);
 
 		reader.readDB();

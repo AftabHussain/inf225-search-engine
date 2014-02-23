@@ -3,10 +3,15 @@ package edu.uci.ics.inf225.searchengine.similarity;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DuplicateFilter {
-	private static final int DISTANCE_THRESHOLD = 15;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-	static List<Long> pageHashes = new ArrayList<Long>();
+public class DuplicateFilter implements SimilarityFilter {
+	private static final int DISTANCE_THRESHOLD = 1;
+
+	private static final Logger dupsLogger = LoggerFactory.getLogger("duplogger");
+
+	private List<Long> pageHashes = new ArrayList<Long>();
 	private Simhash simHash;
 
 	public DuplicateFilter() {
@@ -20,12 +25,14 @@ public class DuplicateFilter {
 		for (int i = 0; i < pageHashes.size(); i++) {
 			long docHash1 = pageHashes.get(i);
 			int dist = simHash.hammingDistance(docHash0, docHash1);
-			if (dist < DISTANCE_THRESHOLD) {
+			if (dist <= DISTANCE_THRESHOLD) {
+				dupsLogger.info("Duplicate: [{}] [{}] [{}] [{}]", url, docHash0, docHash1, dist);
 				return true;
 			}
 		}
 		pageHashes.add(docHash0);
 
+		dupsLogger.info("Original: [{}] [{}]", url, docHash0);
 		return false;
 	}
 

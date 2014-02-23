@@ -3,8 +3,12 @@ package edu.uci.ics.inf225.searchengine.tokenizer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +37,8 @@ public class PageTokenizerTest {
 	}
 
 	private void assertTokenizedContentIsRight(final String title, final String content, final Token[] expectedTokens) throws IOException {
-		tokenizer.tokenize(URL, title, content);
+		final String parsedContent = preProcess(content);
+		tokenizer.tokenize(URL, title, parsedContent);
 		System.out.println("Obtained tokens: " + indexer.observedTokens);
 		indexer.assertTokens(Arrays.asList(expectedTokens));
 	}
@@ -47,17 +52,25 @@ public class PageTokenizerTest {
 		assertTokenizedContentIsRight(title, content, expectedTokens);
 	}
 
+	private String preProcess(final String content) {
+		Document doc = Jsoup.parse(content);
+		Element body = doc.body();
+		if (body != null) {
+			return body.text();
+		} else {
+			return "";
+		}
+	}
+
 	private Token token(String term, int deltapos) {
-		return new Token(URL, term, deltapos);
+		return new Token(term, deltapos);
 	}
 
 	private class Token {
-		private String url;
 		private String token;
 		private int deltapos;
 
-		public Token(String url, String token, int deltapos) {
-			this.url = url;
+		public Token(String token, int deltapos) {
 			this.token = token;
 			this.deltapos = deltapos;
 		}
@@ -71,7 +84,7 @@ public class PageTokenizerTest {
 		public boolean equals(Object obj) {
 			Token anotherToken = (Token) obj;
 
-			return this.url.equals(anotherToken.url) && this.token.equals(anotherToken.token) && this.deltapos == anotherToken.deltapos;
+			return this.token.equals(anotherToken.token) && this.deltapos == anotherToken.deltapos;
 		}
 	}
 
@@ -83,8 +96,18 @@ public class PageTokenizerTest {
 		}
 
 		@Override
-		public void indexTerm(String term, String url, int position) {
-			observedTokens.add(new Token(url, term, position));
+		public void indexTerm(String term, long docID, int position) {
+			observedTokens.add(new Token(term, position));
+		}
+
+		@Override
+		public void indexDoc(String url, List<String> terms, List<Integer> positions) {
+			Iterator<String> termsIt = terms.iterator();
+			Iterator<Integer> positionsIt = positions.iterator();
+
+			while (termsIt.hasNext()) {
+				this.indexTerm(termsIt.next(), 1, positionsIt.next());
+			}
 		}
 
 		public void assertTokens(List<Token> expectedTokens) {

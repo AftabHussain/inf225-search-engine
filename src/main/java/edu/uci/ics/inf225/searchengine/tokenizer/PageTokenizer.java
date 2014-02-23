@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javolution.util.FastTable;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +55,6 @@ public class PageTokenizer {
 	}
 
 	public void tokenize(String url, String title, String content) throws IOException {
-		if (this.isHTML(content)) {
-			Document doc = Jsoup.parse(content);
-
-			content = doc.body().text();
-		}
-
 		TokenStream ts;
 
 		ts = analyzer.tokenStream(CONTENT_FIELD, new StringReader(content));
@@ -68,10 +62,17 @@ public class PageTokenizer {
 		CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
 		PositionIncrementAttribute posAtt = ts.addAttribute(PositionIncrementAttribute.class);
 
+		List<String> terms = new FastTable<>();
+		List<Integer> positions = new FastTable<>();
+
+		// List<String> terms = new ArrayList<>();
+		// List<Integer> positions = new ArrayList<>();
+
 		try {
 			ts.reset(); // Resets this stream to the beginning.
 			while (ts.incrementToken()) {
-				this.indexer.indexTerm(termAtt.toString(), url, posAtt.getPositionIncrement());
+				terms.add(termAtt.toString());
+				positions.add(posAtt.getPositionIncrement());
 			}
 			ts.end(); // Perform end-of-stream operations, e.g. set
 						// the
@@ -81,11 +82,8 @@ public class PageTokenizer {
 			ts.close(); // Release resources associated with this
 						// stream.
 		}
-	}
 
-	private boolean isHTML(String content) {
-		String trimmedContent = content.trim();
-		return trimmedContent.length() > 5 && trimmedContent.substring(0, 5).equalsIgnoreCase("<html");
+		this.indexer.indexDoc(url, terms, positions);
 	}
 
 	private Analyzer createLuceneAnalyzer() {

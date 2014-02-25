@@ -3,16 +3,18 @@ package edu.uci.ics.inf225.searchengine.index;
 import java.util.Comparator;
 import java.util.Map;
 
-public class DocComparator implements Comparator<Long> {
+import edu.uci.ics.inf225.searchengine.index.postings.Posting;
+
+public class DocComparator implements Comparator<Integer> {
 	// Note: this comparator imposes orderings that are inconsistent with
 	// equals.
-	Map<Long, TermInDoc> base;
+	Map<Integer, Posting> base;
 
-	public DocComparator(Map<Long, TermInDoc> base) {
+	public DocComparator(Map<Integer, Posting> base) {
 		this.base = base;
 	}
 
-	public int compare(Long a, Long b) {
+	public int compare(Integer a, Integer b) {
 		if (base.get(a).getTfidf() > base.get(b).getTfidf()) {
 			return -1;
 		} else {

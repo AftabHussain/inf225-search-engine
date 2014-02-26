@@ -10,8 +10,6 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
-
 public class PageTokenStream {
 
 	private TokenStream ts;
@@ -22,16 +20,16 @@ public class PageTokenStream {
 
 	private PageToken pageToken;
 
-	public PageTokenStream(Analyzer analyzer, WebPage page) throws IOException {
-		this(analyzer, page, new PageToken());
+	public PageTokenStream(Analyzer analyzer, String text) throws IOException {
+		this(analyzer, text, new PageToken());
 	}
 
-	public PageTokenStream(Analyzer analyzer, WebPage page, PageToken pageToken) throws IOException {
+	public PageTokenStream(Analyzer analyzer, String text, PageToken pageToken) throws IOException {
 		if (pageToken == null) {
 			pageToken = new PageToken();
 		}
 		this.pageToken = pageToken;
-		this.ts = analyzer.tokenStream(CONTENT_FIELD, new StringReader(page.getContent()));
+		this.ts = analyzer.tokenStream(CONTENT_FIELD, new StringReader(text));
 		this.ts.reset();
 	}
 

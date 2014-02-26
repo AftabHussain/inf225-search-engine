@@ -49,7 +49,7 @@ public class Indexer {
 	public void indexTerm(String term, int docID, int position) {
 		this.termIndex.newTerm(docID, term, position);
 	}
-
+	
 	public void save(String filename) throws IOException {
 		printIndexStats();
 

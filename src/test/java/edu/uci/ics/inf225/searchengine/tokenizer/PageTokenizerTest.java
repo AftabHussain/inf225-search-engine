@@ -16,7 +16,7 @@ import edu.uci.ics.inf225.searchengine.utils.HTMLUtils;
 public class PageTokenizerTest {
 
 	private static final String URL = "http://www.informationretrieval.com";
-	private PageTokenizer tokenizer = new PageTokenizer();
+	private TextTokenizer tokenizer = new TextTokenizer();
 
 	@Before
 	public void setup() {

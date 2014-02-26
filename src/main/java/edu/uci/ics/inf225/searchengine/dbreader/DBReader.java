@@ -23,8 +23,8 @@ public class DBReader {
 
 	private static final String DB_PATH = "db/crawlerdb";
 
-	private static final int PAGES_TO_READ = -1; // -1 for unlimited.
-	// private static final int PAGES_TO_READ = 10000; // -1 for unlimited.
+//	private static final int PAGES_TO_READ = -1; // -1 for unlimited.
+	 private static final int PAGES_TO_READ = 2000;
 
 	private Connection conn = null;
 
@@ -137,8 +137,10 @@ public class DBReader {
 				return page != null;
 			} catch (SQLException e) {
 				log.error("Error accessing DB", e);
+				System.out.println("DBReader.WebPageIterator.hasNext()");
 				return false;
 			} catch (IOException e) {
+				System.out.println("DBReader.WebPageIterator.hasNext()");
 				log.error("Error accessing DB", e);
 				return false;
 			}

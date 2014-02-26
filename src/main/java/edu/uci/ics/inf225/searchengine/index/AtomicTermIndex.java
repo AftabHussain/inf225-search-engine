@@ -19,12 +19,9 @@ import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class AtomicTermIndex implements TermIndex, Externalizable {
-
+	
 	private static final Logger log = LoggerFactory.getLogger(AtomicTermIndex.class);
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 
 	private Map<String, PostingsList> termsMap = createTermsMap(1000000);

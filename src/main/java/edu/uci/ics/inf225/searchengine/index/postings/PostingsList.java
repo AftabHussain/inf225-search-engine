@@ -4,14 +4,18 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class PostingsList implements Externalizable {
+	
+	private static final long serialVersionUID = 1L;
 
 	private Map<Integer, Posting> postings;
 
@@ -33,6 +37,10 @@ public class PostingsList implements Externalizable {
 				postings.put(anotherPosting.getKey(), anotherPosting.getValue());
 			}
 		}
+	}
+
+	public List<Posting> postings() {
+		return new ArrayList<Posting>(postings.values());
 	}
 
 	public void addPosting(Posting posting) {

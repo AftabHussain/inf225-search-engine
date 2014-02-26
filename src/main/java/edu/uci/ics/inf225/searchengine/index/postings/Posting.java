@@ -12,6 +12,8 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class Posting implements Externalizable {
+	
+	private static final long serialVersionUID = 1L;
 
 	private int tf = 0;
 	private double tfidf = 0;

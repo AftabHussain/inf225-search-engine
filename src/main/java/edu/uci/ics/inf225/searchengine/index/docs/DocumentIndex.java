@@ -6,4 +6,6 @@ public interface DocumentIndex {
 
 	public int count();
 
+	public String getDoc(int docID);
+
 }

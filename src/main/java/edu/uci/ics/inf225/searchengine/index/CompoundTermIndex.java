@@ -1,24 +1,23 @@
 package edu.uci.ics.inf225.searchengine.index;
 
+import java.io.Externalizable;
 import java.util.Iterator;
 
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
-public abstract class CompoundTermIndex implements TermIndex {
+public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 
 	public CompoundTermIndex() {
 	}
 
 	@Override
 	public void newTerm(int docID, String term, int position) {
-		TermIndex termIndex = getCurrentIndexFor(term);
+		TermIndex termIndex = getIndexFor(term);
 
 		termIndex.newTerm(docID, term, position);
 	}
 
-	protected abstract TermIndex getCurrentIndexFor(String term);
-
-	protected abstract Iterator<TermIndex> getAllIndicesFor(String term);
+	protected abstract TermIndex getIndexFor(String term);
 
 	protected abstract Iterator<TermIndex> getAllIndices();
 
@@ -34,14 +33,9 @@ public abstract class CompoundTermIndex implements TermIndex {
 
 	@Override
 	public PostingsList postingsList(String term) {
-		PostingsList postings = new PostingsList();
-		Iterator<TermIndex> allIndicesIterator = this.getAllIndicesFor(term);
+		TermIndex termIndex = this.getIndexFor(term);
 
-		while (allIndicesIterator.hasNext()) {
-			postings.merge(allIndicesIterator.next().postingsList(term));
-		}
-
-		return postings;
+		return termIndex.postingsList(term);
 	}
 
 }

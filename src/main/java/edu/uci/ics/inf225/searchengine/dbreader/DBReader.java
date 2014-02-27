@@ -9,6 +9,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +25,14 @@ public class DBReader {
 
 	private static final String DB_PATH = "db/crawlerdb";
 
-//	private static final int PAGES_TO_READ = -1; // -1 for unlimited.
-	 private static final int PAGES_TO_READ = 2000;
+	 private static final int PAGES_TO_READ = -1; // -1 for unlimited.
+	//	private static final int PAGES_TO_READ = 2000;
 
 	private Connection conn = null;
 
 	private static final Logger log = LoggerFactory.getLogger(DBReader.class);
 
 	private static final Logger console = LoggerFactory.getLogger("console");
-
-	private static final long MAX_CLOB_SIZE = 5 * 1024 * 1024; // 2 MB.
 
 	private Statement st = null;
 
@@ -47,7 +47,7 @@ public class DBReader {
 	}
 
 	public int count() throws SQLException {
-		ResultSet rs = st.executeQuery("select count(1) from PAGES");
+		ResultSet rs = st.executeQuery("select count(*) from PAGES");
 
 		int count = 0;
 		if (rs.next()) {
@@ -105,7 +105,11 @@ public class DBReader {
 	}
 
 	public Iterator<WebPage> iterator() {
-		WebPageIterator iterator = new WebPageIterator();
+		return this.iterator(PredicateUtils.truePredicate());
+	}
+
+	public Iterator<WebPage> iterator(Predicate predicate) {
+		WebPageIterator iterator = new WebPageIterator(predicate);
 
 		return iterator;
 	}
@@ -114,16 +118,19 @@ public class DBReader {
 
 		private WebPage page;
 
-		public WebPageIterator() {
+		private Predicate predicate;
+
+		public WebPageIterator(Predicate predicate) {
+			this.predicate = predicate;
 		}
 
 		@Override
 		public boolean hasNext() {
 			try {
-				while (rs.next() && page == null) {
-					Clob clob = rs.getClob(3);
+				while (page == null && rs.next()) {
 					String url = rs.getString(1);
-					if (clob.length() < MAX_CLOB_SIZE) {
+					Clob clob = rs.getClob(3);
+					if (predicate.evaluate(rs)) {
 						String content = IOUtils.toString(clob.getCharacterStream());
 						page = new WebPage();
 						page.setUrl(url);

@@ -5,54 +5,74 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.ListIterator;
 
-import edu.uci.ics.inf225.searchengine.utils.MapUtils;
+import org.apache.commons.collections.ListUtils;
 
 public class PostingsList implements Externalizable {
-	
+
 	private static final long serialVersionUID = 1L;
 
-	private Map<Integer, Posting> postings;
+	private List<Posting> postings;
 
 	public PostingsList() {
 		// TODO Look for better data structure. Skip-list?
 		// postings = new FastSortedMap<Integer, Posting>();
-		postings = new HashMap<>();
+		postings = new LinkedList<>();
 	}
 
-	public void merge(PostingsList anotherList) {
-		for (Entry<Integer, Posting> anotherPosting : anotherList.postings.entrySet()) {
+	public List<Posting> postings() {
+		return Collections.unmodifiableList(this.postings);
+	}
 
-			Posting posting = postings.get(anotherPosting.getKey());
+	public void addPosting(Posting posting) {
+		// TODO Use strategies.
+		this.addSortedByDocIDDesc(posting);
+	}
 
-			if (posting != null) {
-				// This list contains the posting, merge them.
-				posting.merge(anotherPosting.getValue());
-			} else {
-				postings.put(anotherPosting.getKey(), anotherPosting.getValue());
+	private void addSortedByDocIDDesc(Posting posting) {
+		if (postings.isEmpty()) {
+			postings.add(posting);
+		} else {
+
+			ListIterator<Posting> listIterator = postings.listIterator();
+			while (listIterator.hasNext()) {
+				Posting next = listIterator.next();
+				if (posting.getDocID() > next.getDocID()) {
+					listIterator.previous();
+					listIterator.add(posting);
+					return;
+				} else if (posting.getDocID() == next.getDocID()) {
+					next.merge(posting);
+				}
 			}
 		}
 	}
 
-	public List<Posting> postings() {
-		return new ArrayList<Posting>(postings.values());
-	}
-
-	public void addPosting(Posting posting) {
-		postings.put(posting.getDocID(), posting);
-	}
-
 	public Iterator<Posting> iterator() {
-		return postings.values().iterator();
+		return postings.iterator();
 	}
 
 	public Posting get(int docID) {
-		return postings.get(docID);
+		return getWhenItIsSortedByDocID(docID);
+	}
+
+	private Posting getWhenItIsSortedByDocID(int docID) {
+		ListIterator<Posting> listIterator = postings.listIterator();
+		while (listIterator.hasNext()) {
+			Posting next = listIterator.next();
+			if (docID == next.getDocID()) {
+				return next;
+			} else if (docID > next.getDocID()) {
+				// Don't keep searching.
+				return null;
+			}
+		}
+		return null;
 	}
 
 	public int size() {
@@ -64,8 +84,8 @@ public class PostingsList implements Externalizable {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append("[");
-		for (Entry<Integer, Posting> entry : postings.entrySet()) {
-			builder.append("(doc#").append(entry.getKey()).append(":").append(entry.getValue()).append("), ");
+		for (Posting entry : postings) {
+			builder.append(entry).append("), ");
 		}
 		builder.delete(builder.length() - 2, builder.length());
 		builder.append("]");
@@ -81,17 +101,23 @@ public class PostingsList implements Externalizable {
 	@Override
 	public boolean equals(Object obj) {
 		PostingsList another = (PostingsList) obj;
-		return MapUtils.mapsAreEqual(this.postings, another.postings);
+		return ListUtils.isEqualList(postings, another.postings);
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeObject(postings);
+		out.writeInt(postings.size());
+		for (Posting posting : postings) {
+			out.writeObject(posting);
+		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		postings = (Map<Integer, Posting>) in.readObject();
+		int count = in.readInt();
+		postings = new ArrayList<>(count);
+		for (int i = 0; i < count; i++) {
+			postings.add((Posting) in.readObject());
+		}
 	}
 }

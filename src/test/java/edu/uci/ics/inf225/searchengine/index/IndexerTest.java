@@ -32,7 +32,7 @@ public class IndexerTest {
 	@Before
 	public void setup() {
 		docIndex = new SimpleDocumentIndex();
-		termIndex = new AtomicTermIndex(docIndex);
+		termIndex = new AtomicTermIndex();
 		indexer = new Indexer(termIndex, docIndex);
 	}
 

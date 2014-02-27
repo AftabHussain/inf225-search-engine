@@ -6,6 +6,7 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import edu.uci.ics.inf225.searchengine.index.Indexer;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
@@ -65,6 +66,7 @@ public class BasicSearchEngine implements SearchEngine {
 	}
 
 	public QueryResult query(String query) throws QueryException {
+		long start = System.nanoTime();
 		PageTokenStream stream = null;
 		try {
 			stream = tokenizer.tokenize(query);
@@ -76,7 +78,9 @@ public class BasicSearchEngine implements SearchEngine {
 				postings.addAll(this.termIndex.postingsList(token.getTerm()).postings());
 			}
 
-			return createQueryResult(rank(postings));
+			QueryResult queryResult = createQueryResult(rank(postings));
+			queryResult.setExecutionTime(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
+			return queryResult;
 		} catch (IOException e) {
 			throw new QueryException(e);
 		} finally {

@@ -38,6 +38,7 @@ public class SearchEngineLauncher {
 		while (iterator.hasNext()) {
 			System.out.println(iterator.next().getUrl());
 		}
+		System.out.println("Query took " + queryResult.getExecutionTime() + " ms.");
 	}
 
 	private static String readConsole() throws IOException {

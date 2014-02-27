@@ -19,33 +19,23 @@ import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class AtomicTermIndex implements TermIndex, Externalizable {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(AtomicTermIndex.class);
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, PostingsList> termsMap = createTermsMap(1000000);
+	private Map<String, PostingsList> termsMap;
 
 	private HashMap<String, PostingsList> createTermsMap(int initialCapacity) {
 		return new HashMap<>(initialCapacity);
 	}
 
-	transient private DocumentIndex docIndex;
-
 	public AtomicTermIndex() {
-		this(null);
+		this(3500000);
 	}
 
-	public AtomicTermIndex(DocumentIndex docIndex) {
-		this.setDocumentIndex(docIndex);
-	}
-
-	public void setDocumentIndex(DocumentIndex docIndex) {
-		this.docIndex = docIndex;
-	}
-
-	public DocumentIndex getDocumentIndex() {
-		return this.docIndex;
+	public AtomicTermIndex(int initialCapacity) {
+		termsMap = createTermsMap(initialCapacity);
 	}
 
 	private Posting createEmptyTermInDoc(int docID) {
@@ -56,9 +46,8 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 		return new PostingsList();
 	}
 
-	public void postProcess() {
-
-		int docCollectionSize = this.docIndex.count();
+	public void postProcess(DocumentIndex docIndex) {
+		int docCollectionSize = docIndex.count();
 
 		Iterator<PostingsList> postingsListIterator = this.termsMap.values().iterator();
 
@@ -93,17 +82,10 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		int i = 0;
 		out.writeInt(termsMap.size());
 		for (Entry<String, PostingsList> entry : termsMap.entrySet()) {
 			out.writeUTF(entry.getKey());
 			out.writeObject(entry.getValue());
-			i++;
-
-			if (i == 50000) {
-				out.flush();
-				i = 0;
-			}
 		}
 	}
 

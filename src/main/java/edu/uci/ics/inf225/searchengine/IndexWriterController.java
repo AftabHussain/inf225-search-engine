@@ -7,10 +7,11 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.uci.ics.inf225.searchengine.dbreader.ClobSizePredicate;
 import edu.uci.ics.inf225.searchengine.dbreader.DBReader;
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
-import edu.uci.ics.inf225.searchengine.index.AtomicTermIndex;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
+import edu.uci.ics.inf225.searchengine.index.LexicalCompoundTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
@@ -37,7 +38,10 @@ public class IndexWriterController {
 	private static final Logger dupsLogger = LoggerFactory.getLogger("duplogger");
 
 	private static final Logger console = LoggerFactory.getLogger("console");
+
 	private static final Logger log = LoggerFactory.getLogger(IndexWriterController.class);
+
+	private static final long MAX_CLOB_SIZE = 5 * 1024 * 1024; // 2 MB.
 
 	/*
 	 * PageTokenizer optimizations (re-use objects)
@@ -66,7 +70,8 @@ public class IndexWriterController {
 	}
 
 	private TermIndex createTermIndex() {
-		return new AtomicTermIndex();
+		// return new AtomicTermIndex();
+		return new LexicalCompoundTermIndex(100);
 	}
 
 	private SimpleDocumentIndex createDocumentIndex() {
@@ -83,7 +88,7 @@ public class IndexWriterController {
 
 		console.info("About to process {} pages from DB", reader.count());
 
-		Iterator<WebPage> iterator = reader.iterator();
+		Iterator<WebPage> iterator = reader.iterator(new ClobSizePredicate(MAX_CLOB_SIZE, 3));
 
 		WebPage page = null;
 		int counter = 0;

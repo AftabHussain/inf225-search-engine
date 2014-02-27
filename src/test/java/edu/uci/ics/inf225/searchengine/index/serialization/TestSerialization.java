@@ -55,7 +55,6 @@ public class TestSerialization {
 	public void testAtomicTermIndexSerialization() throws ClassNotFoundException, IOException {
 		DocumentIndex docIndex = new SimpleDocumentIndex();
 		AtomicTermIndex termIndex = new AtomicTermIndex();
-		termIndex.setDocumentIndex(docIndex);
 
 		int docA = docIndex.addDoc("A");
 		int docB = docIndex.addDoc("B");

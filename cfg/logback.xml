@@ -37,6 +37,11 @@
     <appender-ref ref="file" />
   </logger>
   
+  <logger name="edu.uci.ics.inf225.searchengine.dbreader.DBReader" level="INFO">
+  	<appender-ref ref="STDOUT" />
+    <appender-ref ref="file" />
+  </logger>
+  
   <logger name="duplogger" level="INFO">
     <appender-ref ref="dupsappender" />
   </logger>

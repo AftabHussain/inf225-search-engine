@@ -11,7 +11,7 @@ import java.util.Map.Entry;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private Map<Integer, String> docIDs = createDocIDsMap(100000);
@@ -26,7 +26,9 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 	@Override
 	public int addDoc(String name) {
 		Integer docID = DocIDGenerator.getInstance().next();
-		this.docIDs.put(docID, name);
+		synchronized (this) {
+			this.docIDs.put(docID, name);
+		}
 		return docID;
 	}
 

@@ -22,7 +22,6 @@ public class IndexLoaderTest {
 
 	private AtomicTermIndex termIndex;
 
-	@Test
 	public void loadIndexFromDisk() throws FileNotFoundException, IOException, ClassNotFoundException {
 		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(Indexer.INDEX_FILENAME));
 

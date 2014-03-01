@@ -34,9 +34,13 @@ public class BasicSearchEngine implements SearchEngine {
 		tokenizer = createTokenizer();
 	}
 
-	public void start() throws IOException {
-		readIndexFromDisk();
+	public void start(String indexFilename) throws IOException {
+		readIndexFromDisk(indexFilename);
 		tokenizer.start();
+	}
+
+	public void start() throws IOException {
+		start(Indexer.INDEX_FILENAME);
 	}
 
 	private TextTokenizer createTokenizer() {
@@ -47,9 +51,14 @@ public class BasicSearchEngine implements SearchEngine {
 		tokenizer.stop();
 	}
 
+<<<<<<< 0f2f59a4ebb57ea9f05134145e2530ab4a851e0b
 	private void readIndexFromDisk() throws IOException {
 		ObjectInputStream inputStream = new ObjectInputStream(
 				new FileInputStream(Indexer.INDEX_FILENAME));
+=======
+	private void readIndexFromDisk(String filename) throws IOException {
+		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(filename));
+>>>>>>> b861bf5c598cfde83330b2667fb74a8a7d475e48
 
 		try {
 			docIndex = (DocumentIndex) inputStream.readObject();

@@ -27,7 +27,6 @@ public class Posting implements Externalizable {
 		this.tf = termFrequency;
 		this.positions = positions;
 		this.docID = docID;
-		this.getTfidf();
 	}
 
 	public void merge(Posting another) {

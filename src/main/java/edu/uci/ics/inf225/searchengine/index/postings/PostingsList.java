@@ -6,6 +6,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +28,10 @@ public class PostingsList implements Externalizable {
 
 	public List<Posting> postings() {
 		return Collections.unmodifiableList(this.postings);
+	}
+
+	public void sort(Comparator<Posting> comparator) {
+		Collections.sort(postings, comparator);
 	}
 
 	public void addPosting(Posting posting) {

@@ -7,7 +7,9 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.IteratorUtils;
 
-public class LexicalCompoundTermIndex extends CompoundTermIndex {
+import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
+
+public class StringHashCompoundTermIndex extends CompoundTermIndex {
 
 	private static final int DEFAULT_BACKETS = 10;
 
@@ -15,15 +17,13 @@ public class LexicalCompoundTermIndex extends CompoundTermIndex {
 
 	private int buckets;
 
-	// private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-	private static final long serialVersionUID = -8679163397290854600L;
-
-	public LexicalCompoundTermIndex() {
+	public StringHashCompoundTermIndex() {
 		this(DEFAULT_BACKETS);
 	}
 
-	public LexicalCompoundTermIndex(int buckets) {
+	public StringHashCompoundTermIndex(int buckets) {
 		this.buckets = buckets;
 		initIndices();
 	}
@@ -82,4 +82,12 @@ public class LexicalCompoundTermIndex extends CompoundTermIndex {
 		}
 	}
 
+	@Override
+	public void prepare(DocumentIndex docIndex) {
+		Iterator<TermIndex> allIndices = this.getAllIndices();
+
+		while (allIndices.hasNext()) {
+			allIndices.next().prepare(docIndex);
+		}
+	}
 }

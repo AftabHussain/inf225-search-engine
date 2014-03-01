@@ -11,7 +11,7 @@ import edu.uci.ics.inf225.searchengine.dbreader.ClobSizePredicate;
 import edu.uci.ics.inf225.searchengine.dbreader.DBReader;
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
-import edu.uci.ics.inf225.searchengine.index.LexicalCompoundTermIndex;
+import edu.uci.ics.inf225.searchengine.index.StringHashCompoundTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
@@ -41,7 +41,7 @@ public class IndexWriterController {
 
 	private static final Logger log = LoggerFactory.getLogger(IndexWriterController.class);
 
-	private static final long MAX_CLOB_SIZE = 5 * 1024 * 1024; // 2 MB.
+	private static final long MAX_CLOB_SIZE = 5 * 1024 * 1024; // 5 MB.
 
 	/*
 	 * PageTokenizer optimizations (re-use objects)
@@ -71,7 +71,7 @@ public class IndexWriterController {
 
 	private TermIndex createTermIndex() {
 		// return new AtomicTermIndex();
-		return new LexicalCompoundTermIndex(100);
+		return new StringHashCompoundTermIndex(100);
 	}
 
 	private SimpleDocumentIndex createDocumentIndex() {
@@ -131,6 +131,12 @@ public class IndexWriterController {
 			indexer.indexTerm(token.getTerm(), docID, token.getPosition());
 		}
 		tokenStream.close();
+	}
+
+	public void prepareIndex() {
+		console.info("Preparing index...");
+		this.termIndex.prepare(docIndex);
+		console.info("Index has been prepared.");
 	}
 
 	public void shutdown() throws IOException {

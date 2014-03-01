@@ -17,6 +17,10 @@ public class DocIDGenerator implements Iterator<Integer> {
 		integer = new AtomicInteger(1);
 	}
 
+	public void reset() {
+		integer.set(1);
+	}
+
 	public static DocIDGenerator getInstance() {
 		return instance;
 	}

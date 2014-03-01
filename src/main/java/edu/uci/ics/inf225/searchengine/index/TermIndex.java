@@ -1,5 +1,6 @@
 package edu.uci.ics.inf225.searchengine.index;
 
+import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public interface TermIndex {
@@ -9,5 +10,7 @@ public interface TermIndex {
 	public int count();
 
 	public PostingsList postingsList(String term);
+
+	public void prepare(DocumentIndex docIndex);
 
 }

@@ -7,6 +7,8 @@ import java.util.Iterator;
 
 import org.apache.commons.collections.IteratorUtils;
 
+import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
+
 public class AtomicTermIndexWrapper extends CompoundTermIndex {
 
 	private TermIndex termIndex;
@@ -34,5 +36,10 @@ public class AtomicTermIndexWrapper extends CompoundTermIndex {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		termIndex = (TermIndex) in.readObject();
+	}
+
+	@Override
+	public void prepare(DocumentIndex docIndex) {
+		this.termIndex.prepare(docIndex);
 	}
 }

@@ -15,6 +15,7 @@ public class IndexWriterLauncher {
 
 		try {
 			controller.start();
+			controller.prepareIndex();
 			controller.shutdown();
 		} catch (SQLException | ClassNotFoundException e) {
 			console.error("DB could not be accessed: {}", e.getMessage());

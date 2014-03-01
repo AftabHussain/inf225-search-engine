@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
+import edu.uci.ics.inf225.searchengine.index.postings.TFIDFPostingComparator;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class AtomicTermIndex implements TermIndex, Externalizable {
@@ -45,40 +46,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	private PostingsList createEmptyPostingsList() {
 		return new PostingsList();
 	}
-
-	public void postProcess(DocumentIndex docIndex) {
-		int docCollectionSize = docIndex.count();
-
-		Iterator<PostingsList> postingsListIterator = this.termsMap.values().iterator();
-
-		while (postingsListIterator.hasNext()) {
-			PostingsList postingsList = postingsListIterator.next();
-			int postingsListSize = postingsList.size();
-
-			Iterator<Posting> postingIterator = postingsList.iterator();
-
-			while (postingIterator.hasNext()) {
-				Posting posting = postingIterator.next();
-				posting.calculateTFIDF(postingsListSize, docCollectionSize);
-			}
-		}
-	}
-
-	// public void sort() {
-	// termsMap = new TreeMap<String, Map<Integer, Posting>>(termsMap);
-	//
-	// Iterator<Entry<String, Map<Integer, Posting>>> it =
-	// termsMap.entrySet().iterator();
-	// while (it.hasNext()) {
-	// Entry<String, Map<Integer, Posting>> outerEntry = it.next();
-	// Map<Integer, Posting> innerMap = outerEntry.getValue();
-	// DocComparator bvc = new DocComparator(innerMap);
-	// TreeMap<Integer, Posting> sorted_map = new TreeMap<Integer,
-	// Posting>(bvc);
-	// sorted_map.putAll(innerMap);
-	// outerEntry.setValue(sorted_map);
-	// }
-	// }
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
@@ -145,5 +112,26 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	public boolean equals(Object obj) {
 		AtomicTermIndex another = (AtomicTermIndex) obj;
 		return MapUtils.mapsAreEqual(this.termsMap, another.termsMap);
+	}
+
+	@Override
+	public void prepare(DocumentIndex docIndex) {
+		int docCollectionSize = docIndex.count();
+		TFIDFPostingComparator cmp = new TFIDFPostingComparator();
+
+		Iterator<PostingsList> postingsListIterator = this.termsMap.values().iterator();
+
+		while (postingsListIterator.hasNext()) {
+			PostingsList postingsList = postingsListIterator.next();
+			int documentFrequency = postingsList.size();
+
+			Iterator<Posting> postingIterator = postingsList.iterator();
+
+			while (postingIterator.hasNext()) {
+				Posting posting = postingIterator.next();
+				posting.calculateTFIDF(documentFrequency, docCollectionSize);
+			}
+			postingsList.sort(cmp);
+		}
 	}
 }

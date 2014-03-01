@@ -12,7 +12,7 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class Posting implements Externalizable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private int tf = 0;
@@ -38,11 +38,11 @@ public class Posting implements Externalizable {
 	}
 
 	public void calculateTFIDF(int docFreq, int collectionSize) {
-		double logtf = 0;
-		if (this.tf != 0) {
-			logtf = Math.log10(this.tf);
+		if (this.tf == 0) {
+			this.setTfidf(0.0);
+		} else {
+			this.setTfidf((1.0 + Math.log10((double) this.tf)) * Math.log10((double) collectionSize / (double) docFreq));
 		}
-		this.setTfidf(logtf + Math.log((double) collectionSize / (double) docFreq));
 	}
 
 	@Override

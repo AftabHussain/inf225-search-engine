@@ -34,7 +34,7 @@ public class CosineSimilarityBuilder {
 		this.addWeights((double) w1, (double) w2);
 	}
 
-	public double calculate() {
+	public double calculate(double ed1, double ed2) {
 		Iterator<Double> it1 = weights1.iterator();
 		Iterator<Double> it2 = weights2.iterator();
 
@@ -44,19 +44,8 @@ public class CosineSimilarityBuilder {
 			dotProduct += it1.next() * it2.next();
 		}
 
-		this.setCachedCosineSimilary(dotProduct / (euclideanDistance(weights1) * euclideanDistance(weights2)));
+		this.setCachedCosineSimilary(dotProduct / (ed1 * ed2));
 		return this.getCachedCosineSimilary();
-	}
-
-	private double euclideanDistance(List<Double> weights) {
-		Iterator<Double> iterator = weights.iterator();
-		double ed = 0d;
-
-		while (iterator.hasNext()) {
-			ed = Math.pow(iterator.next(), 2);
-		}
-
-		return ed;
 	}
 
 	@Override

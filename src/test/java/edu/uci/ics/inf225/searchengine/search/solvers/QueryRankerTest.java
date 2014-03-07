@@ -13,7 +13,6 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.junit.Before;
-import org.junit.Test;
 
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
@@ -36,10 +35,26 @@ public abstract class QueryRankerTest {
 
 	}
 
-	protected abstract List<Integer> expectedRankingDocs();
+	protected void runQuery(Map<String, PostingsList> postingsLists, List<String> allQueryTerms, List<Integer> expectedRankingDocs) {
+		/*
+		 * Remove the unrelated postings.
+		 */
+		Set<String> allKeys = new HashSet<>(postingsLists.keySet());
+		allKeys.removeAll(allQueryTerms);
 
-	@Test
-	public void testRanking() {
+		for (String key : allKeys) {
+			postingsLists.remove(key);
+		}
+
+		List<Integer> rankedDocs = getQueryRanker().query(allQueryTerms, postingsLists, expectedRankingDocs.size(), getTermIndex(), getDocIndex());
+
+		for (int i = 0; i < rankedDocs.size(); i++) {
+			System.out.println("Checking Doc " + (i + 1) + ". Expected=[" + expectedRankingDocs.get(i) + "] Obtained=[" + rankedDocs.get(i) + "]");
+			Assert.assertEquals("Wrong Ranking for Doc " + (i + 1), expectedRankingDocs.get(i), rankedDocs.get(i));
+		}
+	}
+
+	protected Map<String, PostingsList> getTestPostingsLists() {
 		/*
 		 * DATA DEFINITION (from LUCILab slides)
 		 * 
@@ -55,31 +70,12 @@ public abstract class QueryRankerTest {
 		postingsLists.put("Cleopatra", postingsList(posting(1, 1, 17.7f)));
 		postingsLists.put("mercy", postingsList(posting(1, 1, 0.5f), posting(3, 1, 0.7f), posting(4, 1, 0.9f), posting(5, 1, 0.9f), posting(6, 1, 0.3f)));
 		postingsLists.put("worser", postingsList(posting(1, 1, 1.2f), posting(3, 1, 0.6f), posting(4, 1, 0.6f), posting(5, 1, 0.6f)));
-
-		/*
-		 * Remove the unrelated postings.
-		 */
-		Set<String> allKeys = new HashSet<>(postingsLists.keySet());
-		allKeys.removeAll(getAllQueryTerms());
-
-		for (String key : allKeys) {
-			postingsLists.remove(key);
-		}
-
-		List<Integer> expectedRankingDocs = expectedRankingDocs();
-		List<Integer> rankedDocs = getQueryRanker().query(getAllQueryTerms(), postingsLists, expectedRankingDocs.size(), getTermIndex(), getDocIndex());
-
-		for (int i = 0; i < rankedDocs.size(); i++) {
-			System.out.println("Checking Doc " + (i + 1) + ". Expected=[" + expectedRankingDocs.get(i) + "] Obtained=[" + rankedDocs.get(i) + "]");
-			Assert.assertEquals("Wrong Ranking for Doc " + (i + 1), expectedRankingDocs.get(i), rankedDocs.get(i));
-		}
+		return postingsLists;
 	}
 
 	protected TermIndex getTermIndex() {
 		return mock(TermIndex.class);
 	}
-
-	protected abstract List<String> getAllQueryTerms();
 
 	protected DocumentIndex getDocIndex() {
 		return mock(DocumentIndex.class);
@@ -109,7 +105,8 @@ public abstract class QueryRankerTest {
 		return plist;
 	}
 
-	protected static List<String> list(String... words) {
+	@SafeVarargs
+	protected static <T> List<T> list(T... words) {
 		return new ArrayList<>(Arrays.asList(words));
 	}
 }

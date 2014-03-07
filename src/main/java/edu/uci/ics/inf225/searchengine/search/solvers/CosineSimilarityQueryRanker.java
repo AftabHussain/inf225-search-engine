@@ -26,8 +26,12 @@ public class CosineSimilarityQueryRanker implements QueryRanker {
 
 		Map<Integer, CosineSimilarityBuilder> cosSimPerDoc = new HashMap<>();
 
+		double queryEuclideanLength = 0d;
+
 		for (Entry<String, PostingsList> postingList : postingsLists.entrySet()) {
 			double queryTermTFIDF = ScoringUtils.tfidf(queryCardinalityMap.get(postingList.getKey()), docIndex.count(), postingList.getValue().size());
+
+			queryEuclideanLength += Math.pow(queryTermTFIDF, 2);
 
 			Iterator<Posting> postingsIterator = postingList.getValue().iterator();
 
@@ -42,9 +46,10 @@ public class CosineSimilarityQueryRanker implements QueryRanker {
 				builder.addWeights(eachPosting.getTfidf(), queryTermTFIDF);
 			}
 		}
+		queryEuclideanLength = Math.sqrt(queryEuclideanLength);
 
 		for (Entry<Integer, CosineSimilarityBuilder> entry : cosSimPerDoc.entrySet()) {
-			entry.getValue().calculate();
+			entry.getValue().calculate(docIndex.getDoc(entry.getKey()).getEuclideanLength(), queryEuclideanLength);
 		}
 
 		List<Entry<Integer, CosineSimilarityBuilder>> rankedEntries = new ArrayList<>(cosSimPerDoc.entrySet());
@@ -53,7 +58,7 @@ public class CosineSimilarityQueryRanker implements QueryRanker {
 
 			@Override
 			public int compare(Entry<Integer, CosineSimilarityBuilder> o1, Entry<Integer, CosineSimilarityBuilder> o2) {
-				if (o1.getValue().getCachedCosineSimilary() < o2.getValue().getCachedCosineSimilary()) {
+				if (o1.getValue().getCachedCosineSimilary() > o2.getValue().getCachedCosineSimilary()) {
 					return 1;
 				} else if ((o1.getValue().getCachedCosineSimilary() == o2.getValue().getCachedCosineSimilary())) {
 					return 0;
@@ -76,5 +81,4 @@ public class CosineSimilarityQueryRanker implements QueryRanker {
 
 		return rankedDocs;
 	}
-
 }

@@ -3,8 +3,7 @@ package edu.uci.ics.inf225.searchengine.search.solvers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.List;
+import org.junit.Test;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
@@ -17,8 +16,8 @@ public class CosineSimilarityQueryRankingTest extends QueryRankerTest {
 		return new CosineSimilarityQueryRanker();
 	}
 
-	@Override
-	protected List<Integer> expectedRankingDocs() {
+	@Test
+	public void testCosineSimilarity() {
 		// Query = Q: "Antony Brutus"
 		// ED(d) = Euclidean Distance of d.
 		// DP(d1,d2) = Dot Product of d1 and d2.
@@ -35,21 +34,25 @@ public class CosineSimilarityQueryRankingTest extends QueryRankerTest {
 		// ED(d5) = 1.12
 		// ED(d6) = 0.42
 
-		// DP(d1,q) = sqrt(13.1 * 0.477121255 + 3.0 * 0.301029996) = 2.674580047
-		// DP(d2,q) = sqrt(11.4 * 0.477121255) = 2.33220546
+		// DP(d1,q) = 13.1 * 0.477121255 + 3.0 * 0.301029996 = 7.153378429
+		// DP(d2,q) = 11.4 * 0.477121255 + 8.3 * 0.301029996 = 7.937731274
 		// DP(d3,q) = 0
-		// DP(d4,q) = sqrt(1.0 * 0.301029996) = 0.548662005
+		// DP(d4,q) = 1.0 * 0.301029996 = 0.301029996
 		// DP(d5,q) = 0
 		// DP(d6,q) = 0
 
-		// CS(d1,q) = DP(d1,q)/(ED(d1)*ED(q))=2.674580047/(22.38*0.564148695)=0.211837055
-		// CS(d2,q) = DP(d2,q)/(ED(d2)*ED(q))=2.33220546/(18.15*0.564148695)=0.227770036
+		// CS(d1,q) =
+		// DP(d1,q)/(ED(d1)*ED(q))=7.153378429/(22.38*0.564148695)=0.566575161
+		// CS(d2,q) =
+		// DP(d2,q)/(ED(d2)*ED(q))=7.937731274/(18.15*0.564148695)=0.775222153
 		// CS(d3,q) = DP(d3,q)/(ED(d3)*ED(q))=0
-		// CS(d4,q) = DP(d4,q)/(ED(d4)*ED(q))=0.548662005/(1.55*0.564148695)=0.627450689
+		// CS(d4,q) =
+		// DP(d4,q)/(ED(d4)*ED(q))=0.301029996/(1.55*0.564148695)=0.344258353
 		// CS(d5,q) = DP(d5,q)/(ED(d5)*ED(q))=0
 		// CS(d6,q) = DP(d6,q)/(ED(d6)*ED(q))=0
 
-		return Arrays.asList(new Integer[] { 4, 2, 1 });
+		this.runQuery(getTestPostingsLists(), list("Antony", "Brutus"), list(4, 1, 2));
+		this.runQuery(getTestPostingsLists(), list("Brutus", "Antony"), list(4, 1, 2));
 	}
 
 	@Override
@@ -84,8 +87,4 @@ public class CosineSimilarityQueryRankingTest extends QueryRankerTest {
 		return page;
 	}
 
-	@Override
-	protected List<String> getAllQueryTerms() {
-		return list("Antony", "Brutus");
-	}
 }

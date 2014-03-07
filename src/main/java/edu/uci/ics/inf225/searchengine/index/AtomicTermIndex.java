@@ -139,6 +139,7 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 
 	@Override
 	public List<Posting> postingsForDoc(int docID) {
+		// FIXME O(N*M) algorithm ==> O(nterms*ndocs).
 		List<Posting> postings = new LinkedList<>();
 		for (PostingsList postingsList : this.termsMap.values()) {
 			Posting posting = postingsList.get(docID);

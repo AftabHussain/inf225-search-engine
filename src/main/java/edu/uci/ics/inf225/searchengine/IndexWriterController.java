@@ -173,6 +173,7 @@ public class IndexWriterController {
 	public void prepareIndex() {
 		console.info("Preparing index...");
 		this.termIndex.prepare(docIndex);
+		this.docIndex.prepare(termIndex);
 		console.info("Index has been prepared.");
 	}
 

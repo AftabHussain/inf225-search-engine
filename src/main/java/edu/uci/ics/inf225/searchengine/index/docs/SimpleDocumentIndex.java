@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
+import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
@@ -24,10 +26,10 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public int addDoc(String name) {
+	public int addDoc(WebPage page) {
 		Integer docID = DocIDGenerator.getInstance().next();
 		synchronized (this) {
-			this.docIDs.put(docID, name);
+			this.docIDs.put(docID, page.getUrl());
 		}
 		return docID;
 	}
@@ -69,7 +71,19 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public String getDoc(int docID) {
-		return this.docIDs.get(docID);
+	public WebPage getDoc(int docID) {
+		WebPage page = new WebPage();
+		page.setUrl(this.docIDs.get(docID));
+		return page;
+	}
+
+	@Override
+	public void shutdown() {
+		// Nothing to do, so far.
+	}
+
+	@Override
+	public void prepare(TermIndex termIndex) {
+		// Do nothing, so far.
 	}
 }

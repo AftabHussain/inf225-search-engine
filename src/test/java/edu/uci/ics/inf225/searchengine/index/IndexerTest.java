@@ -1,7 +1,6 @@
 package edu.uci.ics.inf225.searchengine.index;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.collections.ListUtils;
@@ -9,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.docs.DocIDGenerator;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
@@ -53,7 +53,7 @@ public class IndexerTest {
 		assertTFIDFInPostings("term6", tfidf(1, 4, 1));
 		assertTFIDFInPostings("term7", tfidf(1, 4, 1));
 		assertTFIDFInPostings("term8", tfidf(1, 4, 1));
-		assertTFIDFInPostings("term9", tfidf(2, 4, 2), tfidf(1, 4, 2));
+		assertTFIDFInPostings("term9", tfidf(1, 4, 2), tfidf(2, 4, 2));
 		assertTFIDFInPostings("term10", tfidf(2, 4, 1));
 		assertTFIDFInPostings("term11", tfidf(2, 4, 1));
 		assertTFIDFInPostings("term12", tfidf(1, 4, 1));
@@ -105,28 +105,28 @@ public class IndexerTest {
 	public void testIndex() {
 		Assert.assertEquals("Wrong number of documents", 4, docIndex.count());
 
-		assertDocForTerm("term1", posting(1, 1, 1));
-		assertDocForTerm("term2", posting(1, 1, 1));
-		assertDocForTerm("term3", posting(1, 1, 1), posting(2, 1, 1));
-		assertDocForTerm("term4", posting(1, 1, 1), posting(2, 1, 1));
-		assertDocForTerm("term5", posting(1, 1, 1), posting(2, 1, 1));
-		assertDocForTerm("term6", posting(2, 1, 1));
-		assertDocForTerm("term7", posting(2, 1, 1));
-		assertDocForTerm("term8", posting(2, 1, 1));
-		assertDocForTerm("term9", posting(2, 1, 1), posting(3, 2, 1, 1));
-		assertDocForTerm("term10", posting(3, 2, 1, 1));
-		assertDocForTerm("term11", posting(3, 2, 1, 1));
-		assertDocForTerm("term12", posting(4, 1, 1));
-		assertDocForTerm("term13", posting(4, 1, 1));
-		assertDocForTerm("term14", posting(4, 1, 1));
-		assertDocForTerm("term15", posting(4, 1, 1));
-		assertDocForTerm("term16", posting(4, 1, 1));
+		assertDocForTerm("term1", posting(1, 1));
+		assertDocForTerm("term2", posting(1, 1));
+		assertDocForTerm("term3", posting(1, 1), posting(2, 1));
+		assertDocForTerm("term4", posting(1, 1), posting(2, 1));
+		assertDocForTerm("term5", posting(1, 1), posting(2, 1));
+		assertDocForTerm("term6", posting(2, 1));
+		assertDocForTerm("term7", posting(2, 1));
+		assertDocForTerm("term8", posting(2, 1));
+		assertDocForTerm("term9", posting(2, 1), posting(3, 2));
+		assertDocForTerm("term10", posting(3, 2));
+		assertDocForTerm("term11", posting(3, 2));
+		assertDocForTerm("term12", posting(4, 1));
+		assertDocForTerm("term13", posting(4, 1));
+		assertDocForTerm("term14", posting(4, 1));
+		assertDocForTerm("term15", posting(4, 1));
+		assertDocForTerm("term16", posting(4, 1));
 
 		Assert.assertEquals("Number of unique terms is wrong", 16, termIndex.count());
 	}
 
-	private Posting posting(int docID, int tf, Integer... positions) {
-		return new Posting(docID, tf, Arrays.asList(positions));
+	private Posting posting(int docID, int tf) {
+		return new Posting(docID, tf);
 	}
 
 	private void assertDocForTerm(String term, Posting... postings) {
@@ -154,8 +154,15 @@ public class IndexerTest {
 		return postingsList;
 	}
 
+	private WebPage page(String url, String content) {
+		WebPage page = new WebPage();
+		page.setUrl(url);
+		page.setContent(content);
+		return page;
+	}
+
 	private void index(String url, String doc) throws IOException {
-		int docID = indexer.startDoc(url);
+		int docID = indexer.startDoc(page(url, doc));
 
 		PageTokenStream stream = tokenizer.tokenize(doc);
 
@@ -163,7 +170,7 @@ public class IndexerTest {
 
 			while (stream.increment()) {
 				PageToken token = stream.next();
-				indexer.indexTerm(token.getTerm(), docID, token.getPosition());
+				indexer.indexTerm(token.getTerm(), docID);
 			}
 		} finally {
 			stream.close();

@@ -5,15 +5,29 @@ import java.util.Iterator;
 import java.util.List;
 
 public class QueryResult {
-	
+
 	private long executionTime;
 
+	private int totalPages;
+
 	private List<QueryResultEntry> resultEntries;
-	
+
 	private static final long serialVersionUID = 1L;
-	
+
 	public QueryResult() {
 		this(10);
+	}
+
+	public QueryResult(int resultSize) {
+		resultEntries = new ArrayList<>(resultSize);
+	}
+
+	public int getTotalPages() {
+		return totalPages;
+	}
+
+	public void setTotalPages(int totalPages) {
+		this.totalPages = totalPages;
 	}
 
 	public void addEntry(QueryResultEntry entry) {
@@ -28,10 +42,6 @@ public class QueryResult {
 		this.executionTime = executionTime;
 	}
 
-	public QueryResult(int resultSize) {
-		resultEntries = new ArrayList<>(resultSize);
-	}
-
 	public Iterator<QueryResultEntry> iterator() {
 		return resultEntries.iterator();
 	}
@@ -39,5 +49,4 @@ public class QueryResult {
 	public int size() {
 		return resultEntries.size();
 	}
-
 }

@@ -2,7 +2,10 @@ package edu.uci.ics.inf225.searchengine.index;
 
 import java.io.Externalizable;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
+import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public abstract class CompoundTermIndex implements TermIndex, Externalizable {
@@ -11,10 +14,10 @@ public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void newTerm(int docID, String term, int position) {
+	public void newTerm(int docID, String term) {
 		TermIndex termIndex = getIndexFor(term);
 
-		termIndex.newTerm(docID, term, position);
+		termIndex.newTerm(docID, term);
 	}
 
 	protected abstract TermIndex getIndexFor(String term);
@@ -38,4 +41,15 @@ public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 		return termIndex.postingsList(term);
 	}
 
+	@Override
+	public List<Posting> postingsForDoc(int docID) {
+		List<Posting> postings = new LinkedList<>();
+		Iterator<TermIndex> allIndicesIterator = this.getAllIndices();
+
+		while (allIndicesIterator.hasNext()) {
+			TermIndex termIndex = allIndicesIterator.next();
+			postings.addAll(termIndex.postingsForDoc(docID));
+		}
+		return postings;
+	}
 }

@@ -4,11 +4,7 @@ import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 
-import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 public class Posting implements Externalizable {
@@ -16,56 +12,58 @@ public class Posting implements Externalizable {
 	private static final long serialVersionUID = 1L;
 
 	private int tf = 0;
-	private double tfidf = 0;
-	private List<Integer> positions = new LinkedList<Integer>();
+	private float tfidf = 0;
 	private int docID;
+	private byte type;
 
 	public Posting() {
 	}
 
-	public Posting(int docID, int termFrequency, List<Integer> positions) {
+	public Posting(int docID, int termFrequency, byte type) {
 		this.tf = termFrequency;
-		this.positions = positions;
 		this.docID = docID;
+		this.type = type;
+	}
+
+	public Posting(int docID, int termFrequency) {
+		this(docID, termFrequency, PostingGlobals.TEXT_TYPE);
+	}
+
+	public byte getType() {
+		return type;
+	}
+
+	public void setType(byte type) {
+		this.type = type;
 	}
 
 	public void merge(Posting another) {
 		if (this.docID == another.docID) {
 			this.tf += another.tf;
-			this.positions.addAll(another.getPositions());
-			this.tfidf = 0; // TF-IDF needs to be recalculated.
+			this.tfidf = 0f; // TF-IDF needs to be recalculated.
 		}
 	}
 
 	public void calculateTFIDF(int docFreq, int collectionSize) {
-		if (this.tf == 0) {
-			this.setTfidf(0.0);
+		if (this.tf == 0f) {
+			this.setTfidf(0f);
 		} else {
-			this.setTfidf((1.0 + Math.log10((double) this.tf)) * Math.log10((double) collectionSize / (double) docFreq));
+			this.setTfidf((1f + (float) Math.log10((double) this.tf)) * (float) Math.log10((double) collectionSize / (double) docFreq));
 		}
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(tf);
-		out.writeDouble(tfidf);
+		out.writeFloat(tfidf);
 		out.writeInt(docID);
-		out.writeInt(positions.size());
-		for (Integer position : positions) {
-			out.writeInt(position.intValue());
-		}
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		tf = in.readInt();
-		tfidf = in.readDouble();
+		tfidf = in.readFloat();
 		docID = in.readInt();
-		int numberOfPositions = in.readInt();
-		this.positions = new ArrayList<>(numberOfPositions);
-		for (int i = 0; i < numberOfPositions; i++) {
-			this.positions.add(in.readInt());
-		}
 	}
 
 	public void increaseTF() {
@@ -80,20 +78,12 @@ public class Posting implements Externalizable {
 		this.tf = tf;
 	}
 
-	public double getTfidf() {
+	public float getTfidf() {
 		return tfidf;
 	}
 
-	public void setTfidf(double tfidf) {
+	public void setTfidf(float tfidf) {
 		this.tfidf = tfidf;
-	}
-
-	public List<Integer> getPositions() {
-		return positions;
-	}
-
-	public void setPositions(List<Integer> positions) {
-		this.positions = positions;
 	}
 
 	public int getDocID() {
@@ -104,21 +94,10 @@ public class Posting implements Externalizable {
 		this.docID = docID;
 	}
 
-	public void addPosition(int position) {
-		this.positions.add(position);
-	}
-
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 
-		builder.append("doc#").append(docID).append(": TF=").append(tf).append(", TFIDF=").append(tfidf).append("Positions={");
-
-		for (Integer position : positions) {
-			builder.append(position.toString()).append(", ");
-		}
-		builder.delete(builder.length() - 2, builder.length());
-
-		builder.append("}");
+		builder.append("doc#").append(docID).append(": TF=").append(tf).append(", TFIDF=").append(tfidf);
 
 		return builder.toString();
 	}
@@ -138,6 +117,6 @@ public class Posting implements Externalizable {
 		}
 		Posting another = (Posting) obj;
 
-		return this.tf == another.tf && this.tfidf == another.tfidf && docID == another.docID && ListUtils.isEqualList(positions, another.positions);
+		return this.tf == another.tf && this.tfidf == another.tfidf && docID == another.docID;
 	}
 }

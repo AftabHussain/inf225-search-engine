@@ -12,12 +12,20 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.collections.CollectionUtils;
+
+import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
+import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
+import edu.uci.ics.inf225.searchengine.search.solvers.CosineSimilarityQueryRanker;
+import edu.uci.ics.inf225.searchengine.search.solvers.QueryRanker;
+import edu.uci.ics.inf225.searchengine.search.solvers.TFIDFQueryRanker;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageToken;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageTokenStream;
 import edu.uci.ics.inf225.searchengine.tokenizer.TextTokenizer;
@@ -30,8 +38,14 @@ public class BasicSearchEngine implements SearchEngine {
 
 	private TextTokenizer tokenizer;
 
+	private QueryRanker singleTermQueryRanker;
+
+	private QueryRanker multiTermQueryRanker;
+
 	public BasicSearchEngine() {
 		tokenizer = createTokenizer();
+		singleTermQueryRanker = new TFIDFQueryRanker();
+		multiTermQueryRanker = new CosineSimilarityQueryRanker();
 	}
 
 	public void start(String indexFilename) throws IOException {
@@ -49,6 +63,7 @@ public class BasicSearchEngine implements SearchEngine {
 
 	public void shutdown() {
 		tokenizer.stop();
+		docIndex.shutdown();
 	}
 
 	private void readIndexFromDisk(String filename) throws IOException {
@@ -64,23 +79,24 @@ public class BasicSearchEngine implements SearchEngine {
 		}
 	}
 
-	private List<Integer> rank(List<Posting> postings, int num) {
-		List<Integer> docIDs_final = new ArrayList<>(postings.size());
-		List<Integer> docIDs = new ArrayList<>(postings.size());
-		List<Double> tfIdfs = new ArrayList<>(postings.size());
+	private List<Integer> rankWithTFIDF(Map<String, List<Posting>> postingsMap, int num) {
+		List<Integer> docIDs_final = new ArrayList<>(num);
+		List<Integer> docIDs = new ArrayList<>();
+		List<Float> tfIdfs = new ArrayList<>();
 		Map docID_map = new HashMap();
 
-		for (Posting posting : postings) {
-			if (docIDs.contains(posting.getDocID())) {
-				int marked_idx = docIDs.indexOf(posting.getDocID());
-				double current_tfidf = tfIdfs.get(marked_idx);
-				double new_tfidf = current_tfidf + posting.getTfidf();
-				tfIdfs.set(marked_idx, new_tfidf);
-			} else {
-				docIDs.add(posting.getDocID());
-				tfIdfs.add(posting.getTfidf());
+		for (List<Posting> postings : postingsMap.values()) {
+			for (Posting posting : postings) {
+				if (docIDs.contains(posting.getDocID())) {
+					int marked_idx = docIDs.indexOf(posting.getDocID());
+					float current_tfidf = tfIdfs.get(marked_idx);
+					float new_tfidf = current_tfidf + posting.getTfidf();
+					tfIdfs.set(marked_idx, new_tfidf);
+				} else {
+					docIDs.add(posting.getDocID());
+					tfIdfs.add(posting.getTfidf());
+				}
 			}
-			// System.out.println("DocumentID#"+posting.getDocID()+" "+posting.getTfidf()+"check");
 		}
 
 		for (int i = 0; i < docIDs.size(); i++) {
@@ -116,31 +132,56 @@ public class BasicSearchEngine implements SearchEngine {
 			docID_mapD.put(arr1[j], arr2[j]);
 		}
 
-		System.out.println(docID_mapD);
-
 		Iterator iter = docID_mapD.entrySet().iterator();
-		for (int j = 0; j < num; j++) {
+		for (int j = 0; j < num && iter.hasNext(); j++) {
 			Map.Entry mEntry = (Map.Entry) iter.next();
 			docIDs_final.add(Integer.parseInt(mEntry.getKey().toString()));
 		}
-		System.out.println(docIDs_final);
 		return docIDs_final;
 	}
 
 	public QueryResult query(String query) throws QueryException {
+		if (query.trim().isEmpty()) {
+			throw new QueryException("Query cannot be empty.");
+		}
 		long start = System.nanoTime();
 		PageTokenStream stream = null;
 		try {
 			stream = tokenizer.tokenize(query);
 
-			List<Posting> postings = new LinkedList<>();
+			Map<String, PostingsList> postings = new HashMap<>();
+
+			List<String> allQueryTerms = new LinkedList<>();
+
 			while (stream.increment()) {
 				PageToken token = stream.next();
-				System.out.println("#" + token.getTerm());
-				postings.addAll(this.termIndex.postingsList(token.getTerm()).postings());
+				allQueryTerms.add(token.getTerm());
 			}
 
-			QueryResult queryResult = createQueryResult(rank(postings, 10));
+			for (String queryTerm : allQueryTerms) {
+				if (!postings.containsKey(queryTerm)) {
+					/*
+					 * Process only if this query term has not been processed
+					 * before.
+					 */
+					postings.put(queryTerm, this.termIndex.postingsList(queryTerm));
+				}
+			}
+
+			List<Integer> rankedPostings;
+			QueryRanker queryRanker = null;
+			if (postings.size() == 1) {
+				// rankedPostings = rankWithTFIDF(postings, 10);
+				queryRanker = this.singleTermQueryRanker;
+			} else {
+				// rankedPostings = rankWithCosineSimilarity(allQueryTerms,
+				// postings, 10);
+				queryRanker = this.multiTermQueryRanker;
+			}
+			rankedPostings = queryRanker.query(allQueryTerms, postings, 10, termIndex, docIndex);
+
+			QueryResult queryResult = createQueryResult(rankedPostings);
+			queryResult.setTotalPages(postings.size());
 			queryResult.setExecutionTime(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
 			return queryResult;
 		} catch (IOException e) {
@@ -154,8 +195,59 @@ public class BasicSearchEngine implements SearchEngine {
 		}
 	}
 
+	private List<Integer> rankWithCosineSimilarity(List<String> allQueryTerms, Map<String, PostingsList> postings, int n) {
+		double queryEuclideanLength = 0f;
+		Map<String, Integer> queryCardinalityMap = CollectionUtils.getCardinalityMap(allQueryTerms);
+
+		Map<Integer, Double> cosSimPerDoc = new HashMap<>();
+
+		for (Entry<String, PostingsList> queryTerm : postings.entrySet()) {
+			double queryTermWeight = queryCardinalityMap.get(queryTerm.getKey());
+			queryEuclideanLength += Math.pow(queryTermWeight, 2d);
+
+			Iterator<Posting> postingsIterator = queryTerm.getValue().iterator();
+
+			while (postingsIterator.hasNext()) {
+				Posting eachPosting = postingsIterator.next();
+				if (cosSimPerDoc.containsKey(eachPosting.getDocID())) {
+					cosSimPerDoc.put(eachPosting.getDocID(), cosSimPerDoc.get(eachPosting.getDocID()) + eachPosting.getTfidf() * queryTermWeight);
+
+				} else {
+					cosSimPerDoc.put(eachPosting.getDocID(), eachPosting.getTfidf() * queryTermWeight);
+				}
+			}
+		}
+
+		queryEuclideanLength = Math.sqrt(queryEuclideanLength);
+		for (Entry<Integer, Double> entry : cosSimPerDoc.entrySet()) {
+			entry.setValue(Math.sqrt(entry.getValue()) / (docIndex.getDoc(entry.getKey()).getEuclideanLength() * queryEuclideanLength));
+		}
+
+		List<Entry<Integer, Double>> rankedEntries = new ArrayList<>(cosSimPerDoc.entrySet());
+
+		Collections.sort(rankedEntries, new Comparator<Entry<Integer, Double>>() {
+
+			@Override
+			public int compare(Entry<Integer, Double> o1, Entry<Integer, Double> o2) {
+				return (int) (o2.getValue() - o1.getValue());
+			}
+		});
+
+		List<Integer> rankedDocs = new ArrayList<>(n);
+
+		int i = 0;
+		for (Entry<Integer, Double> entry : rankedEntries) {
+			if (i < n) {
+				rankedDocs.add(entry.getKey());
+				i++;
+			}
+		}
+
+		return rankedDocs;
+	}
+
 	private QueryResult createQueryResult(List<Integer> rank) {
-		QueryResult queryResult = new QueryResult();
+		QueryResult queryResult = new QueryResult(rank.size());
 
 		for (Integer docID : rank) {
 			queryResult.addEntry(createQueryResultEntry(docID));
@@ -166,7 +258,10 @@ public class BasicSearchEngine implements SearchEngine {
 
 	private QueryResultEntry createQueryResultEntry(Integer docID) {
 		QueryResultEntry entry = new QueryResultEntry();
-		entry.setUrl(docIndex.getDoc(docID));
+		WebPage page = docIndex.getDoc(docID);
+		entry.setUrl(page.getUrl());
+		entry.setTitle(page.getTitle());
+		entry.setContent(page.getContent());
 
 		return entry;
 	}

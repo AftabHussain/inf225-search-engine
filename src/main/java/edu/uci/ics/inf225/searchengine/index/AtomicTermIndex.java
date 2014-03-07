@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -14,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
+import edu.uci.ics.inf225.searchengine.index.postings.DocIDPostingComparator;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
-import edu.uci.ics.inf225.searchengine.index.postings.TFIDFPostingComparator;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class AtomicTermIndex implements TermIndex, Externalizable {
@@ -40,7 +41,7 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	}
 
 	private Posting createEmptyTermInDoc(int docID) {
-		return new Posting(docID, 0, new LinkedList<Integer>());
+		return new Posting(docID, 0);
 	}
 
 	private PostingsList createEmptyPostingsList() {
@@ -67,7 +68,7 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void newTerm(int docID, String term, int position) {
+	public void newTerm(int docID, String term) {
 		PostingsList postingsList;
 		Posting posting;
 
@@ -84,8 +85,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 			posting = createEmptyTermInDoc(docID);
 			postingsList.addPosting(posting);
 		}
-		posting.addPosition(position);
-
 		posting.increaseTF();
 	}
 
@@ -117,7 +116,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	@Override
 	public void prepare(DocumentIndex docIndex) {
 		int docCollectionSize = docIndex.count();
-		TFIDFPostingComparator cmp = new TFIDFPostingComparator();
 
 		Iterator<PostingsList> postingsListIterator = this.termsMap.values().iterator();
 
@@ -131,7 +129,22 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 				Posting posting = postingIterator.next();
 				posting.calculateTFIDF(documentFrequency, docCollectionSize);
 			}
-			postingsList.sort(cmp);
+			/*
+			 * Sort it by DocID to compute cosine similarity faster.
+			 */
+			postingsList.sort(new DocIDPostingComparator());
 		}
+	}
+
+	@Override
+	public List<Posting> postingsForDoc(int docID) {
+		List<Posting> postings = new LinkedList<>();
+		for (PostingsList postingsList : this.termsMap.values()) {
+			Posting posting = postingsList.get(docID);
+			if (posting != null) {
+				postings.add(posting);
+			}
+		}
+		return postings;
 	}
 }

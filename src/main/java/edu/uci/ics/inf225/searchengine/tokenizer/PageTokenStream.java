@@ -6,7 +6,6 @@ import java.io.StringReader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +43,8 @@ public class PageTokenStream {
 
 	public PageToken next() {
 		CharTermAttribute termAtt = ts.addAttribute(CharTermAttribute.class);
-		PositionIncrementAttribute posAtt = ts.addAttribute(PositionIncrementAttribute.class);
 
 		this.pageToken.setTerm(termAtt.toString());
-		this.pageToken.setPosition(posAtt.getPositionIncrement());
 		return this.pageToken;
 	}
 

@@ -5,14 +5,13 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.AtomicTermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
@@ -51,26 +50,32 @@ public class TestSerialization {
 		return object2;
 	}
 
+	private WebPage page(String url) {
+		WebPage page = new WebPage();
+		page.setUrl(url);
+		return page;
+	}
+
 	@Test
 	public void testAtomicTermIndexSerialization() throws ClassNotFoundException, IOException {
 		DocumentIndex docIndex = new SimpleDocumentIndex();
 		AtomicTermIndex termIndex = new AtomicTermIndex();
 
-		int docA = docIndex.addDoc("A");
-		int docB = docIndex.addDoc("B");
-		int docC = docIndex.addDoc("C");
+		int docA = docIndex.addDoc(page("A"));
+		int docB = docIndex.addDoc(page("B"));
+		int docC = docIndex.addDoc(page("C"));
 
-		termIndex.newTerm(docA, "Term1", 1);
-		termIndex.newTerm(docA, "Term2", 2);
-		termIndex.newTerm(docA, "Term3", 3);
+		termIndex.newTerm(docA, "Term1");
+		termIndex.newTerm(docA, "Term2");
+		termIndex.newTerm(docA, "Term3");
 
-		termIndex.newTerm(docB, "Term1", 1);
-		termIndex.newTerm(docB, "Term2", 2);
-		termIndex.newTerm(docB, "Term3", 3);
+		termIndex.newTerm(docB, "Term1");
+		termIndex.newTerm(docB, "Term2");
+		termIndex.newTerm(docB, "Term3");
 
-		termIndex.newTerm(docC, "Term1", 1);
-		termIndex.newTerm(docC, "Term2", 2);
-		termIndex.newTerm(docC, "Term3", 3);
+		termIndex.newTerm(docC, "Term1");
+		termIndex.newTerm(docC, "Term2");
+		termIndex.newTerm(docC, "Term3");
 
 		Assert.assertEquals("Problem occurred when serializing AtomicTermIndex", termIndex, marshalled(termIndex));
 	}
@@ -79,9 +84,9 @@ public class TestSerialization {
 	public void testSimpleDirectoryIndex() throws ClassNotFoundException, IOException {
 		DocumentIndex docIndex = new SimpleDocumentIndex();
 
-		docIndex.addDoc("A");
-		docIndex.addDoc("B");
-		docIndex.addDoc("C");
+		docIndex.addDoc(page("A"));
+		docIndex.addDoc(page("B"));
+		docIndex.addDoc(page("C"));
 
 		Assert.assertEquals("Problem occurred when serializing SimpleDirectoryIndex", docIndex, marshalled(docIndex));
 	}
@@ -104,10 +109,7 @@ public class TestSerialization {
 	}
 
 	private Posting createRandomPosting() {
-		List<Integer> list = new ArrayList<>();
-		list.add(random());
-		list.add(random());
-		Posting posting = new Posting(random(), random(), list);
+		Posting posting = new Posting(random(), random());
 		return posting;
 	}
 }

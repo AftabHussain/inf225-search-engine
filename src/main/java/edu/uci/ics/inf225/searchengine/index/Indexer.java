@@ -13,6 +13,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 
 /**
@@ -42,14 +43,14 @@ public class Indexer {
 		return docIndex;
 	}
 
-	public int startDoc(String url) {
-		return this.docIndex.addDoc(url);
+	public int startDoc(WebPage page) {
+		return this.docIndex.addDoc(page);
 	}
 
-	public void indexTerm(String term, int docID, int position) {
-		this.termIndex.newTerm(docID, term, position);
+	public void indexTerm(String term, int docID) {
+		this.termIndex.newTerm(docID, term);
 	}
-	
+
 	public void save(String filename) throws IOException {
 		printIndexStats();
 

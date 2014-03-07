@@ -1,8 +1,7 @@
 package edu.uci.ics.inf225.searchengine.similarity;
 
+import java.util.HashSet;
 import java.util.Set;
-
-import javolution.util.FastSet;
 
 public class IdenticalFilter implements SimilarityFilter {
 
@@ -11,8 +10,11 @@ public class IdenticalFilter implements SimilarityFilter {
 	private static Simhash simhash = new Simhash(new BinaryWordSeg());
 
 	public IdenticalFilter() {
-		// hashes = new HashSet<>(100000);
-		hashes = new FastSet<>();
+		this(100000);
+	}
+
+	public IdenticalFilter(int initialCapacity) {
+		hashes = new HashSet<>();
 	}
 
 	@Override

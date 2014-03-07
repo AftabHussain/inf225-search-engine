@@ -45,6 +45,9 @@ public class StringHashCompoundTermIndex extends CompoundTermIndex {
 	}
 
 	private int hash(CharSequence csq) {
+		/*
+		 * Based on FastMap (Javolution).
+		 */
 		if (csq == null)
 			return 0;
 		int n = csq.length();

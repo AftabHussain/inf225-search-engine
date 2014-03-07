@@ -6,8 +6,6 @@ public class PageToken {
 
 	private String term;
 
-	private int position;
-
 	public PageToken() {
 	}
 
@@ -19,19 +17,10 @@ public class PageToken {
 		this.term = term;
 	}
 
-	public int getPosition() {
-		return position;
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
-	}
-
 	@Override
 	public int hashCode() {
 		HashCodeBuilder builder = new HashCodeBuilder();
 		builder.append(term);
-		builder.append(position);
 		return builder.hashCode();
 	}
 
@@ -41,6 +30,6 @@ public class PageToken {
 			return false;
 		}
 		PageToken anotherToken = (PageToken) obj;
-		return this.term.equals(anotherToken.term) && this.position == anotherToken.position;
+		return this.term.equals(anotherToken.term);
 	}
 }

@@ -7,14 +7,30 @@ public class WebPage {
 	private String title;
 
 	private String content;
-	
+
 	private String htmlContent;
+
+	private float euclideanLength;
 
 	public WebPage() {
 	}
 
 	public String getUrl() {
 		return url;
+	}
+
+	/**
+	 * This is only used for searches when cosine similarity is calculated. It
+	 * is just the document's Euclidean Length pre-computed.
+	 * 
+	 * @return
+	 */
+	public float getEuclideanLength() {
+		return euclideanLength;
+	}
+
+	public void setEuclideanLength(float euclideanLength) {
+		this.euclideanLength = euclideanLength;
 	}
 
 	public String getHtmlContent() {

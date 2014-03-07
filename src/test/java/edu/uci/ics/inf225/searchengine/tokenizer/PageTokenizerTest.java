@@ -32,7 +32,7 @@ public class PageTokenizerTest {
 	public void testTXTPageIsProperlyTokenized() throws IOException {
 		final String title = "Information Retrieval";
 		final String content = "We love Information Retrieval in Winter 2014. It's our today's opinion";
-		final PageToken[] expectedTokens = { token("love", 2), token("information", 1), token("retrieval", 1), token("winter", 2), token("2014", 1), token("today", 3), token("opinion", 1) };
+		final PageToken[] expectedTokens = { token("love"), token("information"), token("retrieval"), token("winter"), token("2014"), token("today"), token("opinion") };
 
 		WebPage page = new WebPage();
 		page.setContent(HTMLUtils.parse(content));
@@ -60,10 +60,9 @@ public class PageTokenizerTest {
 		return assertTokenizedContentIsRight(page, expectedTokens, null);
 	}
 
-	private PageToken token(String term, int position) {
+	private PageToken token(String term) {
 		PageToken token = new PageToken();
 		token.setTerm(term);
-		token.setPosition(position);
 		return token;
 	}
 
@@ -71,7 +70,7 @@ public class PageTokenizerTest {
 	public void testHTMLPageIsProperlyTokenized() throws IOException {
 		final String title = "Information Retrieval";
 		final String content = "<html><title>" + title + "</title><body>We love Information Retrieval in Winter 2014. It's our today's opinion</body></html>";
-		final PageToken[] expectedTokens = { token("love", 2), token("information", 1), token("retrieval", 1), token("winter", 2), token("2014", 1), token("today", 3), token("opinion", 1) };
+		final PageToken[] expectedTokens = { token("love"), token("information"), token("retrieval"), token("winter"), token("2014"), token("today"), token("opinion") };
 
 		WebPage page = new WebPage();
 		page.setContent(HTMLUtils.parse(content));

@@ -14,7 +14,7 @@ import edu.uci.ics.inf225.searchengine.index.Indexer;
 import edu.uci.ics.inf225.searchengine.index.StringHashCompoundTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
-import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
+import edu.uci.ics.inf225.searchengine.index.docs.HSQLDocumentIndex;
 import edu.uci.ics.inf225.searchengine.similarity.IdenticalFilter;
 import edu.uci.ics.inf225.searchengine.similarity.SimilarityFilter;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageToken;
@@ -74,8 +74,21 @@ public class IndexWriterController {
 		return new StringHashCompoundTermIndex(100);
 	}
 
-	private SimpleDocumentIndex createDocumentIndex() {
-		return new SimpleDocumentIndex();
+	private DocumentIndex createDocumentIndex() {
+		// return new SimpleDocumentIndex();
+		try {
+			HSQLDocumentIndex documentIndex = new HSQLDocumentIndex();
+			documentIndex.destroyDatabase();
+			return documentIndex;
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	private IdenticalFilter createSimilarityFilter() {
@@ -113,7 +126,7 @@ public class IndexWriterController {
 	}
 
 	private void processPage(WebPage page) {
-		int docID = docIndex.addDoc(page.getUrl());
+		int docID = docIndex.addDoc(page);
 
 		try {
 			PageTokenStream tokenStream = tokenizer.tokenize(page, cachedPageToken);
@@ -128,7 +141,7 @@ public class IndexWriterController {
 		while (tokenStream.increment()) {
 			PageToken token = tokenStream.next();
 
-			indexer.indexTerm(token.getTerm(), docID, token.getPosition());
+			indexer.indexTerm(token.getTerm(), docID);
 		}
 		tokenStream.close();
 	}

@@ -9,7 +9,7 @@ import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public abstract class CompoundTermIndex implements TermIndex, Externalizable {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	public CompoundTermIndex() {
@@ -53,5 +53,10 @@ public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 			postings.addAll(termIndex.postingsForDoc(docID));
 		}
 		return postings;
+	}
+
+	@Override
+	public double idf(String term) {
+		return this.getIndexFor(term).idf(term);
 	}
 }

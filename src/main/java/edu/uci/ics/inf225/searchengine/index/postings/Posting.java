@@ -7,6 +7,8 @@ import java.io.ObjectOutput;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.uci.ics.inf225.searchengine.search.scoring.ScoringUtils;
+
 public class Posting implements Externalizable {
 
 	private static final long serialVersionUID = 1L;
@@ -45,11 +47,7 @@ public class Posting implements Externalizable {
 	}
 
 	public void calculateTFIDF(int docFreq, int collectionSize) {
-		if (this.tf == 0f) {
-			this.setTfidf(0f);
-		} else {
-			this.setTfidf((1f + (float) Math.log10((double) this.tf)) * (float) Math.log10((double) collectionSize / (double) docFreq));
-		}
+		this.setTfidf(ScoringUtils.tfidf(this.tf, collectionSize, docFreq));
 	}
 
 	@Override

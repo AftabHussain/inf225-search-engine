@@ -18,4 +18,6 @@ public interface TermIndex {
 
 	public void prepare(DocumentIndex docIndex);
 
+	public double idf(String term);
+
 }

@@ -148,4 +148,15 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 		}
 		return postings;
 	}
+
+	@Override
+	public double idf(String term) {
+		PostingsList postingsList = this.postingsList(term);
+
+		if (postingsList == null) {
+			return 0d;
+		}
+
+		return (double) this.termsMap.size() / (double) postingsList.size();
+	}
 }

@@ -49,4 +49,9 @@ public class AtomicTermIndexWrapper extends CompoundTermIndex {
 	public List<Posting> postingsForDoc(int docID) {
 		return this.termIndex.postingsForDoc(docID);
 	}
+
+	@Override
+	public double idf(String term) {
+		return this.termIndex.idf(term);
+	}
 }

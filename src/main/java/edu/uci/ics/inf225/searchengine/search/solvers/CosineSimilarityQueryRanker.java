@@ -15,52 +15,59 @@ import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
+import edu.uci.ics.inf225.searchengine.search.scoring.CosineSimilarityBuilder;
+import edu.uci.ics.inf225.searchengine.search.scoring.ScoringUtils;
 
 public class CosineSimilarityQueryRanker implements QueryRanker {
 
 	@Override
 	public List<Integer> query(List<String> allQueryTerms, Map<String, PostingsList> postingsLists, int limit, TermIndex termIndex, DocumentIndex docIndex) {
-		double queryEuclideanLength = 0f;
 		Map<String, Integer> queryCardinalityMap = CollectionUtils.getCardinalityMap(allQueryTerms);
 
-		Map<Integer, Double> cosSimPerDoc = new HashMap<>();
+		Map<Integer, CosineSimilarityBuilder> cosSimPerDoc = new HashMap<>();
 
-		for (Entry<String, PostingsList> queryTerm : postingsLists.entrySet()) {
-			double queryTermWeight = queryCardinalityMap.get(queryTerm.getKey());
-			queryEuclideanLength += Math.pow(queryTermWeight, 2d);
+		for (Entry<String, PostingsList> postingList : postingsLists.entrySet()) {
+			double queryTermTFIDF = ScoringUtils.tfidf(queryCardinalityMap.get(postingList.getKey()), docIndex.count(), postingList.getValue().size());
 
-			Iterator<Posting> postingsIterator = queryTerm.getValue().iterator();
+			Iterator<Posting> postingsIterator = postingList.getValue().iterator();
 
 			while (postingsIterator.hasNext()) {
 				Posting eachPosting = postingsIterator.next();
-				if (cosSimPerDoc.containsKey(eachPosting.getDocID())) {
-					cosSimPerDoc.put(eachPosting.getDocID(), cosSimPerDoc.get(eachPosting.getDocID()) + eachPosting.getTfidf() * queryTermWeight);
+				CosineSimilarityBuilder builder = cosSimPerDoc.get(eachPosting.getDocID());
 
-				} else {
-					cosSimPerDoc.put(eachPosting.getDocID(), eachPosting.getTfidf() * queryTermWeight);
+				if (builder == null) {
+					builder = new CosineSimilarityBuilder();
+					cosSimPerDoc.put(eachPosting.getDocID(), builder);
 				}
+				builder.addWeights(eachPosting.getTfidf(), queryTermTFIDF);
 			}
 		}
 
-		queryEuclideanLength = Math.sqrt(queryEuclideanLength);
-		for (Entry<Integer, Double> entry : cosSimPerDoc.entrySet()) {
-			entry.setValue(Math.sqrt(entry.getValue()) / (docIndex.getDoc(entry.getKey()).getEuclideanLength() * queryEuclideanLength));
+		for (Entry<Integer, CosineSimilarityBuilder> entry : cosSimPerDoc.entrySet()) {
+			entry.getValue().calculate();
 		}
 
-		List<Entry<Integer, Double>> rankedEntries = new ArrayList<>(cosSimPerDoc.entrySet());
+		List<Entry<Integer, CosineSimilarityBuilder>> rankedEntries = new ArrayList<>(cosSimPerDoc.entrySet());
 
-		Collections.sort(rankedEntries, new Comparator<Entry<Integer, Double>>() {
+		Collections.sort(rankedEntries, new Comparator<Entry<Integer, CosineSimilarityBuilder>>() {
 
 			@Override
-			public int compare(Entry<Integer, Double> o1, Entry<Integer, Double> o2) {
-				return (int) (o2.getValue() - o1.getValue());
+			public int compare(Entry<Integer, CosineSimilarityBuilder> o1, Entry<Integer, CosineSimilarityBuilder> o2) {
+				if (o1.getValue().getCachedCosineSimilary() < o2.getValue().getCachedCosineSimilary()) {
+					return 1;
+				} else if ((o1.getValue().getCachedCosineSimilary() == o2.getValue().getCachedCosineSimilary())) {
+					return 0;
+				} else {
+					return -1;
+				}
 			}
+
 		});
 
 		List<Integer> rankedDocs = new ArrayList<>(limit);
 
 		int i = 0;
-		for (Entry<Integer, Double> entry : rankedEntries) {
+		for (Entry<Integer, CosineSimilarityBuilder> entry : rankedEntries) {
 			if (i < limit) {
 				rankedDocs.add(entry.getKey());
 				i++;

@@ -139,7 +139,7 @@ public class DBReader {
 						String title = (String) ObjectUtils.defaultIfNull(rs.getString(2), "");
 						page.setTitle(title);
 						page.setHtmlContent(content);
-						extractHTMLInformation(content);
+						extractHTMLInformation(page, content);
 					} else {
 						log.info("Skipping {} with size {}", url, clob.length());
 					}
@@ -156,7 +156,7 @@ public class DBReader {
 			}
 		}
 
-		private void extractHTMLInformation(String content) {
+		private void extractHTMLInformation(WebPage page, String content) {
 			Document doc = HTMLUtils.parse(content);
 			page.setContent(HTMLUtils.extractBody(doc));
 

@@ -12,6 +12,7 @@ import java.util.Iterator;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,9 +135,10 @@ public class DBReader {
 						String content = IOUtils.toString(clob.getCharacterStream());
 						page = new WebPage();
 						page.setUrl(url);
-						page.setTitle(rs.getString(2));
+						String title = (String) ObjectUtils.defaultIfNull(rs.getString(2), "");
+						page.setTitle(title);
 						page.setHtmlContent(content);
-						page.setContent(HTMLUtils.parse(content));
+						page.setContent(HTMLUtils.extractBody(content));
 					} else {
 						log.info("Skipping {} with size {}", url, clob.length());
 					}

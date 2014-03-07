@@ -1,5 +1,8 @@
 package edu.uci.ics.inf225.searchengine.dbreader;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WebPage {
 
 	private String url;
@@ -12,11 +15,18 @@ public class WebPage {
 
 	private float euclideanLength;
 
+	private Map<String, String> links;
+
 	public WebPage() {
+		links = new HashMap<>();
 	}
 
 	public String getUrl() {
 		return url;
+	}
+
+	public void addLink(String anchor, String url) {
+		this.links.put(anchor, url);
 	}
 
 	/**
@@ -59,5 +69,18 @@ public class WebPage {
 
 	public void setContent(String content) {
 		this.content = content;
+	}
+
+	/**
+	 * Since this object could be re-used for performance, there is a
+	 * possibility to reset it to the initial state.
+	 */
+	public void reset() {
+		this.content = null;
+		this.htmlContent = null;
+		this.url = null;
+		this.title = null;
+		this.links.clear();
+		this.euclideanLength = 0f;
 	}
 }

@@ -35,7 +35,7 @@ public class PageTokenizerTest {
 		final PageToken[] expectedTokens = { token("love"), token("information"), token("retrieval"), token("winter"), token("2014"), token("today"), token("opinion") };
 
 		WebPage page = new WebPage();
-		page.setContent(HTMLUtils.parse(content));
+		page.setContent(HTMLUtils.extractBody(content));
 		page.setHtmlContent(content);
 		page.setTitle(title);
 		page.setUrl(URL);
@@ -73,7 +73,7 @@ public class PageTokenizerTest {
 		final PageToken[] expectedTokens = { token("love"), token("information"), token("retrieval"), token("winter"), token("2014"), token("today"), token("opinion") };
 
 		WebPage page = new WebPage();
-		page.setContent(HTMLUtils.parse(content));
+		page.setContent(HTMLUtils.extractBody(content));
 		page.setHtmlContent(content);
 		page.setTitle(title);
 		page.setUrl(URL);

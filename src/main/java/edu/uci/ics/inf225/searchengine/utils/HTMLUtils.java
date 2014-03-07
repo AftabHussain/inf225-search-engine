@@ -6,7 +6,14 @@ import org.jsoup.nodes.Element;
 
 public class HTMLUtils {
 
-	public static String parse(String html) {
+	/**
+	 * Retrieves the body of an HTML page.
+	 * 
+	 * @param html
+	 *            The HTML where the body will be parsed from.
+	 * @return A String with the body's text.
+	 */
+	public static String extractBody(String html) {
 		Document doc = Jsoup.parse(html);
 
 		Element body = doc.body();

@@ -9,6 +9,8 @@ import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public abstract class CompoundTermIndex implements TermIndex, Externalizable {
+	
+	private static final long serialVersionUID = 1L;
 
 	public CompoundTermIndex() {
 	}

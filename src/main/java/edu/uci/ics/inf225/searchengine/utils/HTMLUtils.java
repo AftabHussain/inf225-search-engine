@@ -14,13 +14,21 @@ public class HTMLUtils {
 	 * @return A String with the body's text.
 	 */
 	public static String extractBody(String html) {
-		Document doc = Jsoup.parse(html);
+		Document doc = HTMLUtils.parse(html);
 
+		return HTMLUtils.extractBody(doc);
+	}
+	
+	public static String extractBody(Document doc) {
 		Element body = doc.body();
 		if (body != null) {
 			return doc.body().text();
 		} else {
 			return "";
 		}
+	}
+
+	public static Document parse(String html) {
+		return Jsoup.parse(html);
 	}
 }

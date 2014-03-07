@@ -13,6 +13,7 @@ import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.PredicateUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,7 +139,7 @@ public class DBReader {
 						String title = (String) ObjectUtils.defaultIfNull(rs.getString(2), "");
 						page.setTitle(title);
 						page.setHtmlContent(content);
-						page.setContent(HTMLUtils.extractBody(content));
+						extractHTMLInformation(content);
 					} else {
 						log.info("Skipping {} with size {}", url, clob.length());
 					}
@@ -153,6 +154,14 @@ public class DBReader {
 				log.error("Error accessing DB", e);
 				return false;
 			}
+		}
+
+		private void extractHTMLInformation(String content) {
+			Document doc = HTMLUtils.parse(content);
+			page.setContent(HTMLUtils.extractBody(doc));
+
+			// TODO Aftab to extract links with anchors and put them in page by
+			// doing page.addLink().
 		}
 
 		@Override

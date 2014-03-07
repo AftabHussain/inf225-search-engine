@@ -15,6 +15,7 @@ import edu.uci.ics.inf225.searchengine.index.StringHashCompoundTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.HSQLDocumentIndex;
+import edu.uci.ics.inf225.searchengine.index.postings.PostingGlobals;
 import edu.uci.ics.inf225.searchengine.similarity.IdenticalFilter;
 import edu.uci.ics.inf225.searchengine.similarity.SimilarityFilter;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageToken;
@@ -129,19 +130,42 @@ public class IndexWriterController {
 		int docID = docIndex.addDoc(page);
 
 		try {
-			PageTokenStream tokenStream = tokenizer.tokenize(page, cachedPageToken);
+			/*
+			 * Tokenize page contents (body).
+			 */
+			PageTokenStream tokenStream = tokenizer.tokenize(page.getContent(), cachedPageToken);
+			processTokenStream(docID, tokenStream, PostingGlobals.TEXT_TYPE);
 
-			processTokenStream(docID, tokenStream);
+			/*
+			 * Tokenize page title.
+			 */
+			tokenStream = tokenizer.tokenize(page.getTitle(), cachedPageToken);
+			processTokenStream(docID, tokenStream, PostingGlobals.TITLE_TYPE);
+
+			/*
+			 * TODO Process anchor links.
+			 */
 		} catch (IOException e) {
 			log.error("Page {} could not be processed: {}", page.getUrl(), e.getMessage());
 		}
 	}
 
-	private void processTokenStream(int docID, PageTokenStream tokenStream) throws IOException {
+	/**
+	 * Processes a {@link PageTokenStream} for a document.
+	 * 
+	 * @param docID
+	 *            The ID of the document related to this token stream.
+	 * @param tokenStream
+	 *            The {@link PageTokenStream}.
+	 * @param type
+	 *            One value from {@link PostingGlobals}.
+	 * @throws IOException
+	 */
+	private void processTokenStream(int docID, PageTokenStream tokenStream, byte type) throws IOException {
 		while (tokenStream.increment()) {
 			PageToken token = tokenStream.next();
 
-			indexer.indexTerm(token.getTerm(), docID);
+			indexer.indexTerm(token.getTerm(), docID, type);
 		}
 		tokenStream.close();
 	}

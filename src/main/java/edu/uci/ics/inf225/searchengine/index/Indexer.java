@@ -47,8 +47,8 @@ public class Indexer {
 		return this.docIndex.addDoc(page);
 	}
 
-	public void indexTerm(String term, int docID) {
-		this.termIndex.newTerm(docID, term);
+	public void indexTerm(String term, int docID, byte tokenType) {
+		this.termIndex.newTerm(docID, term, tokenType);
 	}
 
 	public void save(String filename) throws IOException {

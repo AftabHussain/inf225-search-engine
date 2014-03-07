@@ -8,7 +8,7 @@ import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public interface TermIndex {
 
-	public void newTerm(int docID, String term);
+	public void newTerm(int docID, String term, byte tokenType);
 
 	public int count();
 

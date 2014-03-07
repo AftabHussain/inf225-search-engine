@@ -40,7 +40,7 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 		termsMap = createTermsMap(initialCapacity);
 	}
 
-	private Posting createEmptyTermInDoc(int docID) {
+	private Posting createEmptyPosting(int docID) {
 		return new Posting(docID, 0);
 	}
 
@@ -68,7 +68,7 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void newTerm(int docID, String term) {
+	public void newTerm(int docID, String term, byte tokenType) {
 		PostingsList postingsList;
 		Posting posting;
 
@@ -82,10 +82,11 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 		posting = postingsList.get(docID);
 
 		if (posting == null) {
-			posting = createEmptyTermInDoc(docID);
+			posting = createEmptyPosting(docID);
 			postingsList.addPosting(posting);
 		}
 		posting.increaseTF();
+		posting.setType(tokenType);
 	}
 
 	@Override

@@ -13,6 +13,7 @@ import edu.uci.ics.inf225.searchengine.index.docs.DocIDGenerator;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
+import edu.uci.ics.inf225.searchengine.index.postings.PostingGlobals;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageToken;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageTokenStream;
@@ -170,7 +171,7 @@ public class IndexerTest {
 
 			while (stream.increment()) {
 				PageToken token = stream.next();
-				indexer.indexTerm(token.getTerm(), docID);
+				indexer.indexTerm(token.getTerm(), docID, PostingGlobals.TEXT_TYPE);
 			}
 		} finally {
 			stream.close();

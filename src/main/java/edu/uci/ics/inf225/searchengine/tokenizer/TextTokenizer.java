@@ -35,20 +35,24 @@ public class TextTokenizer {
 		analyzer.close();
 	}
 
-	public PageTokenStream tokenize(WebPage page) throws IOException {
-		return tokenize(page, new PageToken());
-	}
-
-	public PageTokenStream tokenize(String text) throws IOException {
-		return createPageTokenStream(text, new PageToken());
-	}
-
 	private PageTokenStream createPageTokenStream(String text, PageToken pageToken) throws IOException {
 		return new PageTokenStream(analyzer, text, pageToken);
 	}
 
+	public PageTokenStream tokenize(WebPage page) throws IOException {
+		return this.tokenize(page, new PageToken());
+	}
+
+	public PageTokenStream tokenize(String text) throws IOException {
+		return this.tokenize(text, new PageToken());
+	}
+
 	public PageTokenStream tokenize(WebPage page, PageToken pageToken) throws IOException {
 		return createPageTokenStream(page.getContent(), pageToken);
+	}
+
+	public PageTokenStream tokenize(String text, PageToken pageToken) throws IOException {
+		return createPageTokenStream(text, pageToken);
 	}
 
 	private Analyzer createLuceneAnalyzer() {

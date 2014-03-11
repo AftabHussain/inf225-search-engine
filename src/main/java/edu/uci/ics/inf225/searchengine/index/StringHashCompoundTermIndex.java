@@ -36,25 +36,12 @@ public class StringHashCompoundTermIndex extends CompoundTermIndex {
 	}
 
 	@Override
-	protected TermIndex getIndexFor(String term) {
+	protected TermIndex getIndexFor(int term) {
 		return indices[getBucket(term)];
 	}
 
-	private int getBucket(String term) {
-		return hash(term) & (buckets - 1);
-	}
-
-	private int hash(CharSequence csq) {
-		/*
-		 * Based on FastMap (Javolution).
-		 */
-		if (csq == null)
-			return 0;
-		int n = csq.length();
-		if (n == 0)
-			return 0;
-		// Hash based on 5 characters only.
-		return csq.charAt(0) + csq.charAt(n - 1) * 31 + csq.charAt(n >> 1) * 1009 + csq.charAt(n >> 2) * 27583 + csq.charAt(n - 1 - (n >> 2)) * 73408859;
+	private int getBucket(int term) {
+		return term & (buckets - 1);
 	}
 
 	private AtomicTermIndex createAtomicIndex() {

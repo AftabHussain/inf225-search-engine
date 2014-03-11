@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.AtomicTermIndex;
+import edu.uci.ics.inf225.searchengine.index.Lexicon;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
@@ -66,17 +67,17 @@ public class TestSerialization {
 		int docB = docIndex.addDoc(page("B"));
 		int docC = docIndex.addDoc(page("C"));
 
-		termIndex.newTerm(docA, "Term1", PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docA, "Term2", PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docA, "Term3", PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docA, 1, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docA, 2, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docA, 3, PostingGlobals.TEXT_TYPE);
 
-		termIndex.newTerm(docB, "Term1", PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docB, "Term2", PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docB, "Term3", PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docB, 1, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docB, 2, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docB, 3, PostingGlobals.TEXT_TYPE);
 
-		termIndex.newTerm(docC, "Term1", PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docC, "Term2", PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docC, "Term3", PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docC, 1, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docC, 2, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docC, 3, PostingGlobals.TEXT_TYPE);
 
 		Assert.assertEquals("Problem occurred when serializing AtomicTermIndex", termIndex, marshalled(termIndex));
 	}
@@ -90,6 +91,17 @@ public class TestSerialization {
 		docIndex.addDoc(page("C"));
 
 		Assert.assertEquals("Problem occurred when serializing SimpleDirectoryIndex", docIndex, marshalled(docIndex));
+	}
+
+	@Test
+	public void testLexicon() throws ClassNotFoundException, IOException {
+		Lexicon lexicon = new Lexicon();
+
+		lexicon.getTermID("A");
+		lexicon.getTermID("B");
+		lexicon.getTermID("C");
+
+		Assert.assertEquals("Problem occurred when serializing Lexicon", lexicon, marshalled(lexicon));
 	}
 
 	@Test

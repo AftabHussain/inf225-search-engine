@@ -2,6 +2,8 @@ package edu.uci.ics.inf225.searchengine.index;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.commons.collections.ListUtils;
 import org.junit.Assert;
@@ -29,6 +31,8 @@ public class IndexerTest {
 
 	private DocumentIndex docIndex;
 
+	private Lexicon lexicon;
+
 	private TextTokenizer tokenizer;
 
 	@Before
@@ -36,7 +40,8 @@ public class IndexerTest {
 		DocIDGenerator.getInstance().reset();
 		docIndex = new SimpleDocumentIndex();
 		termIndex = new AtomicTermIndex();
-		indexer = new Indexer(termIndex, docIndex);
+		lexicon = new Lexicon();
+		indexer = new Indexer(termIndex, docIndex, lexicon);
 		tokenizer = new TextTokenizer();
 		tokenizer.start();
 
@@ -65,7 +70,8 @@ public class IndexerTest {
 	}
 
 	private void assertTFIDFInPostings(String term, Double... tfidfs) {
-		PostingsList term1PostingList = termIndex.postingsList(term);
+		int termID = lexicon.getTermID(term);
+		PostingsList term1PostingList = termIndex.postingsList(termID);
 		Iterator<Posting> termPostingIterator = term1PostingList.iterator();
 
 		for (int i = 0; i < tfidfs.length; i++) {
@@ -131,7 +137,8 @@ public class IndexerTest {
 	}
 
 	private void assertDocForTerm(String term, Posting... postings) {
-		PostingsList postingsList = termIndex.postingsList(term);
+		int termID = lexicon.getTermID(term);
+		PostingsList postingsList = termIndex.postingsList(termID);
 
 		PostingsList expectedTermInDocs = createPostingsList(postings);
 
@@ -169,10 +176,12 @@ public class IndexerTest {
 
 		try {
 
+			List<String> terms = new LinkedList<>();
 			while (stream.increment()) {
 				PageToken token = stream.next();
-				indexer.indexTerm(token.getTerm(), docID, PostingGlobals.TEXT_TYPE);
+				terms.add(token.getTerm());
 			}
+			indexer.indexTerms(terms, docID, PostingGlobals.TEXT_TYPE);
 		} finally {
 			stream.close();
 		}

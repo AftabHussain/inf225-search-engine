@@ -7,6 +7,7 @@ import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
@@ -17,6 +18,8 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 	private static final long serialVersionUID = 1L;
 
 	private Map<Integer, String> docIDs = createDocIDsMap(100000);
+
+	private Map<Integer, Set<Integer>> termIDsPerDoc = new HashMap<>();
 
 	private Map<Integer, String> createDocIDsMap(int initialCapacity) {
 		return new HashMap<>(initialCapacity);
@@ -85,5 +88,15 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 	@Override
 	public void prepare(TermIndex termIndex) {
 		// Do nothing, so far.
+	}
+
+	@Override
+	public void addTerms(int docID, Set<Integer> termIDs) {
+		this.termIDsPerDoc.put(docID, termIDs);
+	}
+
+	@Override
+	public Set<Integer> getTerms(int docID) {
+		return this.termIDsPerDoc.get(docID);
 	}
 }

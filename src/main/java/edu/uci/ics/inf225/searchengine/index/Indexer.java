@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +33,12 @@ public class Indexer {
 
 	private DocumentIndex docIndex;
 
-	public Indexer(TermIndex termIndex, DocumentIndex docIndex) {
+	private Lexicon lexicon;
+
+	public Indexer(TermIndex termIndex, DocumentIndex docIndex, Lexicon lexicon) {
 		this.termIndex = termIndex;
 		this.docIndex = docIndex;
+		this.lexicon = lexicon;
 	}
 
 	public TermIndex getTermIndex() {
@@ -47,8 +53,14 @@ public class Indexer {
 		return this.docIndex.addDoc(page);
 	}
 
-	public void indexTerm(String term, int docID, byte tokenType) {
-		this.termIndex.newTerm(docID, term, tokenType);
+	public void indexTerms(List<String> terms, int docID, byte tokenType) {
+		Set<Integer> termIDs = new HashSet<>();
+		for (String term : terms) {
+			int termID = lexicon.getTermID(term);
+			this.termIndex.newTerm(docID, termID, tokenType);
+			termIDs.add(termID);
+		}
+		this.docIndex.addTerms(docID, termIDs);
 	}
 
 	public void save(String filename) throws IOException {
@@ -56,6 +68,8 @@ public class Indexer {
 
 		console.info("Storing index to {}...", filename);
 		ObjectOutputStream stream = new ObjectOutputStream(new FileOutputStream(filename));
+		console.info("Storing Lexicon...");
+		stream.writeObject(this.lexicon);
 		console.info("Storing Document Index...");
 		stream.writeObject(this.docIndex);
 		console.info("Storing Term Index...");

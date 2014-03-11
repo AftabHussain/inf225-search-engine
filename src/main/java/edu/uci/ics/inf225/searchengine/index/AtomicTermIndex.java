@@ -6,8 +6,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,14 +24,24 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<String, PostingsList> termsMap;
+	private Map<Integer, PostingsList> termsMap;
 
-	private HashMap<String, PostingsList> createTermsMap(int initialCapacity) {
+	private Lexicon lexicon;
+
+	private HashMap<Integer, PostingsList> createTermsMap(int initialCapacity) {
 		return new HashMap<>(initialCapacity);
 	}
 
 	public AtomicTermIndex() {
 		this(3500000);
+	}
+
+	public Lexicon getLexicon() {
+		return lexicon;
+	}
+
+	public void setLexicon(Lexicon lexicon) {
+		this.lexicon = lexicon;
 	}
 
 	public AtomicTermIndex(int initialCapacity) {
@@ -51,8 +59,8 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(termsMap.size());
-		for (Entry<String, PostingsList> entry : termsMap.entrySet()) {
-			out.writeUTF(entry.getKey());
+		for (Entry<Integer, PostingsList> entry : termsMap.entrySet()) {
+			out.writeInt(entry.getKey());
 			out.writeObject(entry.getValue());
 		}
 	}
@@ -63,20 +71,20 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 		termsMap = createTermsMap(size);
 
 		for (int i = 0; i < size; i++) {
-			termsMap.put(in.readUTF(), (PostingsList) in.readObject());
+			termsMap.put(in.readInt(), (PostingsList) in.readObject());
 		}
 	}
 
 	@Override
-	public void newTerm(int docID, String term, byte tokenType) {
+	public void newTerm(int docID, int termID, byte tokenType) {
 		PostingsList postingsList;
 		Posting posting;
 
-		postingsList = termsMap.get(term);
+		postingsList = termsMap.get(termID);
 
 		if (postingsList == null) {
 			postingsList = createEmptyPostingsList();
-			termsMap.put(term, postingsList);
+			termsMap.put(termID, postingsList);
 		}
 
 		posting = postingsList.get(docID);
@@ -92,15 +100,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	@Override
 	public int count() {
 		return this.termsMap.size();
-	}
-
-	@Override
-	public PostingsList postingsList(String term) {
-		if (termsMap.containsKey(term)) {
-			return termsMap.get(term);
-		} else {
-			return this.createEmptyPostingsList();
-		}
 	}
 
 	@Override
@@ -138,26 +137,24 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public List<Posting> postingsForDoc(int docID) {
-		// FIXME O(N*M) algorithm ==> O(nterms*ndocs).
-		List<Posting> postings = new LinkedList<>();
-		for (PostingsList postingsList : this.termsMap.values()) {
-			Posting posting = postingsList.get(docID);
-			if (posting != null) {
-				postings.add(posting);
-			}
-		}
-		return postings;
-	}
-
-	@Override
-	public double idf(String term) {
-		PostingsList postingsList = this.postingsList(term);
+	public double idf(int termID) {
+		PostingsList postingsList = this.postingsList(termID);
 
 		if (postingsList == null) {
 			return 0d;
 		}
 
 		return (double) this.termsMap.size() / (double) postingsList.size();
+	}
+
+	@Override
+	public PostingsList postingsList(int termID) {
+		PostingsList postingsList = termsMap.get(termID);
+
+		if (postingsList == null) {
+			return this.createEmptyPostingsList();
+		} else {
+			return postingsList;
+		}
 	}
 }

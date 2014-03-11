@@ -73,8 +73,8 @@ public class CosineSimilarityQueryRankingTest extends ScoreContributorTest {
 	protected TermIndex getTermIndex() {
 		TermIndex termIndex = mock(TermIndex.class);
 
-		when(termIndex.idf("Antony")).thenReturn((double) 6 / (double) 2);
-		when(termIndex.idf("Brutus")).thenReturn((double) 6 / (double) 3);
+		// when(termIndex.idf("Antony")).thenReturn((double) 6 / (double) 2);
+		// when(termIndex.idf("Brutus")).thenReturn((double) 6 / (double) 3);
 
 		return termIndex;
 	}

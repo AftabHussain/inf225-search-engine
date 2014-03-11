@@ -12,13 +12,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
+import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
@@ -34,6 +38,8 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 	private static final String DOCS_TABLE = "docs";
 
+	private static final String DOCS_TERMS_TABLE = "termsperdoc";
+
 	private static final String DB_PATH = "db/docindex";
 
 	private static final int MAX_TITLE_LENGTH = 300;
@@ -44,11 +50,17 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 	transient private PreparedStatement selectPS;
 
+	transient private PreparedStatement insertTermsPS;
+
+	transient private PreparedStatement selectTermsPS;
+
 	/**
 	 * This map contains all of the data associated to each document. It would
 	 * be similar {@link WebPage} but we use an array of Objects to save space.
 	 */
 	private Map<Integer, Object[]> docsData;
+
+	private Map<Integer, Set<Integer>> termsPerDoc;
 
 	private int counter;
 
@@ -56,9 +68,21 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 	public HSQLDocumentIndex() throws ClassNotFoundException, SQLException {
 		docsData = new HashMap<Integer, Object[]>();
+		termsPerDoc = new HashMap<>(150000);
 		connect();
+		// destroyDatabase();
 		createInsertPreparedStatement();
 		createSelectPreparedStatement();
+		createInsertTermsPreparedStatement();
+		createSelectTermsPreparedStatement();
+	}
+
+	private void createSelectTermsPreparedStatement() throws SQLException {
+		this.selectTermsPS = conn.prepareStatement("SELECT termid FROM " + DOCS_TERMS_TABLE + " WHERE docid=?");
+	}
+
+	private void createInsertTermsPreparedStatement() throws SQLException {
+		this.insertTermsPS = conn.prepareStatement("INSERT INTO " + DOCS_TERMS_TABLE + " (docid,termid) VALUES (?,?)");
 	}
 
 	public void destroyDatabase() throws SQLException {
@@ -67,7 +91,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	private void createInsertPreparedStatement() throws SQLException {
-		this.insertPS = conn.prepareStatement("INSERT INTO docs (docid,url,title,desc) VALUES (?,?,?,?)");
+		this.insertPS = conn.prepareStatement("INSERT INTO " + DOCS_TABLE + " (docid,url,title,desc) VALUES (?,?,?,?)");
 	}
 
 	private void createSelectPreparedStatement() throws SQLException {
@@ -78,7 +102,9 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		Statement st = null;
 		st = conn.createStatement();
 		st.execute("CREATE TABLE IF NOT EXISTS " + DOCS_TABLE + " ( docid INTEGER, url VARCHAR(1000), title VARCHAR(" + MAX_TITLE_LENGTH + "), desc VARCHAR(" + MAX_DESC_LENGTH + "))");
+		st.execute("CREATE TABLE IF NOT EXISTS " + DOCS_TERMS_TABLE + " (docid INTEGER, termid INTEGER)");
 		st.execute("CREATE INDEX idx_docid ON " + DOCS_TABLE + " (docid)");
+		st.execute("CREATE INDEX idx_doctermid ON " + DOCS_TERMS_TABLE + " (docid)");
 
 		st.close();
 	}
@@ -90,6 +116,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		try {
 			st = conn.createStatement();
 			rs = st.executeQuery("DROP TABLE if exists " + DOCS_TABLE);
+			rs = st.executeQuery("DROP TABLE if exists " + DOCS_TERMS_TABLE);
 		} finally {
 			if (rs != null) {
 				rs.close();
@@ -103,6 +130,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	private void connect() throws ClassNotFoundException, SQLException {
 		Class.forName("org.hsqldb.jdbcDriver");
 		conn = DriverManager.getConnection("jdbc:hsqldb:file:" + DB_PATH, "sa", "");
+		conn.setAutoCommit(false);
 	}
 
 	private void insert(int docID, WebPage page) throws SQLException {
@@ -123,6 +151,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 		insertPS.addBatch();
 		insertPS.executeBatch();
+		conn.commit();
 	}
 
 	@Override
@@ -239,7 +268,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	public void prepare(TermIndex termIndex) {
 		for (int i = 1; i <= counter; i++) {
 			// Taking advantage of predictable doc IDs...
-			List<Posting> postings = termIndex.postingsForDoc(i);
+			List<Posting> postings = getPostingsForDoc(i, termIndex);
 
 			/*
 			 * Compute metadata.
@@ -257,6 +286,23 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		}
 	}
 
+	private List<Posting> getPostingsForDoc(int docID, TermIndex termIndex) {
+		List<Posting> postings = new LinkedList<>();
+
+		Set<Integer> terms = this.getTerms(docID);
+
+		for (Integer termID : terms) {
+			PostingsList postingsList = termIndex.postingsList(termID);
+
+			Posting posting = postingsList.get(docID);
+			if (posting != null) {
+				postings.add(posting);
+			}
+		}
+
+		return postings;
+	}
+
 	private float calculateEuclideanLength(List<Posting> postings) {
 		float sumOfWeights = 0f;
 
@@ -264,5 +310,63 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 			sumOfWeights += Math.pow(posting.getTfidf(), 2);
 		}
 		return (float) Math.sqrt(sumOfWeights);
+	}
+
+	@Override
+	public void addTerms(int docID, Set<Integer> termIDs) {
+		Set<Integer> termIDsPerDoc = this.termsPerDoc.get(docID);
+
+		if (termIDsPerDoc == null) {
+			termIDsPerDoc = new HashSet<>(termIDs.size());
+			this.termsPerDoc.put(docID, termIDsPerDoc);
+		}
+
+		termIDsPerDoc.addAll(termIDs);
+	}
+
+	private void addTermsINDB(int docID, Set<Integer> termIDs) {
+		try {
+			if (!termIDs.isEmpty()) {
+
+				for (Integer termID : termIDs) {
+					insertTermsPS.setInt(1, docID);
+					insertTermsPS.setInt(2, termID);
+					insertTermsPS.addBatch();
+				}
+				insertTermsPS.executeBatch();
+				conn.commit();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public Set<Integer> getTerms(int docID) {
+		Set<Integer> termIDs = this.termsPerDoc.get(docID);
+
+		if (termIDs != null) {
+			return termIDs;
+		} else {
+			return new HashSet<>();
+		}
+	}
+
+	private Set<Integer> getTermsFromDB(int docID) {
+		Set<Integer> termIDs = new HashSet<>();
+		try {
+			this.selectTermsPS.setInt(1, docID);
+			ResultSet resultSet = this.selectTermsPS.executeQuery();
+
+			while (resultSet.next()) {
+				termIDs.add(resultSet.getInt(1));
+			}
+			resultSet.close();
+			return termIDs;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return termIDs;
+		}
 	}
 }

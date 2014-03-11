@@ -4,12 +4,10 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Iterator;
-import java.util.List;
 
 import org.apache.commons.collections.IteratorUtils;
 
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
-import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 
 public class AtomicTermIndexWrapper extends CompoundTermIndex {
 
@@ -20,7 +18,7 @@ public class AtomicTermIndexWrapper extends CompoundTermIndex {
 	}
 
 	@Override
-	protected TermIndex getIndexFor(String term) {
+	protected TermIndex getIndexFor(int termID) {
 		return termIndex;
 	}
 
@@ -46,12 +44,7 @@ public class AtomicTermIndexWrapper extends CompoundTermIndex {
 	}
 
 	@Override
-	public List<Posting> postingsForDoc(int docID) {
-		return this.termIndex.postingsForDoc(docID);
-	}
-
-	@Override
-	public double idf(String term) {
-		return this.termIndex.idf(term);
+	public double idf(int termID) {
+		return this.termIndex.idf(termID);
 	}
 }

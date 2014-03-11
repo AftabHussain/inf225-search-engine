@@ -34,7 +34,6 @@ public abstract class ScoreContributorTest {
 	@Before
 	public void setUp() throws Exception {
 		scoreContributor = createScoreContributor();
-
 	}
 
 	protected void runQuery(Map<String, PostingsList> postingsLists, List<String> allQueryTerms, Map<Integer, Double> expectedScores) {
@@ -59,6 +58,10 @@ public abstract class ScoreContributorTest {
 					0.01d);
 		}
 	}
+
+	// protected int id(String term) {
+
+	// }
 
 	protected Map<String, PostingsList> getTestPostingsLists() {
 		/*

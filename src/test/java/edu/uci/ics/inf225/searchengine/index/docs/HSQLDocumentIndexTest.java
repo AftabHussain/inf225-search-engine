@@ -4,8 +4,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -13,17 +14,25 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
+import edu.uci.ics.inf225.searchengine.index.Lexicon;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
+import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public class HSQLDocumentIndexTest {
 
 	private static final double COMPARISON_DELTA = 0.0001;
 	private HSQLDocumentIndex docIndex;
 
+	private TermIndex termIndex;
+	private Lexicon lexicon;
+
 	@Before
 	public void setup() throws ClassNotFoundException, SQLException {
+		lexicon = new Lexicon();
+		termIndex = mock(TermIndex.class);
 		docIndex = new HSQLDocumentIndex();
+		docIndex.destroyDatabase();
 	}
 
 	@After
@@ -31,34 +40,55 @@ public class HSQLDocumentIndexTest {
 		docIndex.shutdown();
 	}
 
+	private Integer id(String term) {
+		return lexicon.getTermID(term);
+	}
+
+	private static <T> Set<T> set(T... elements) {
+		return new HashSet<>(Arrays.asList(elements));
+	}
+
 	@Test
 	public void testEuclideanDistance() {
-		WebPage p1 = page("Doc1", "Title1", "Desc1");
-		WebPage p2 = page("Doc2", "Title2", "Desc2");
-		WebPage p3 = page("Doc3", "Title3", "Desc3");
+		WebPage p1 = page("Doc1", "Title1", "Desc1 Desc2 Desc3");
+		WebPage p2 = page("Doc2", "Title2", "Desc3");
+		WebPage p3 = page("Doc3", "Title3", "Desc2 Desc3");
 		int doc1 = docIndex.addDoc(p1);
 		int doc2 = docIndex.addDoc(p2);
 		int doc3 = docIndex.addDoc(p3);
 
-		TermIndex termIndex = mock(TermIndex.class);
+		docIndex.addTerms(doc1, set(id("Desc1"), id("Desc2"), id("Desc3")));
+		docIndex.addTerms(doc2, set(id("Desc3")));
+		docIndex.addTerms(doc3, set(id("Desc2"), id("Desc3")));
 
-		when(termIndex.postingsForDoc(doc1)).thenReturn(postings(doc1, 2.1f));
-		when(termIndex.postingsForDoc(doc2)).thenReturn(postings(doc2, 3.2f, 3.3f, 3.4f));
-		when(termIndex.postingsForDoc(doc3)).thenReturn(postings(doc3, 4.5f, 4.6f));
+		when(termIndex.postingsList(id("Desc1"))).thenReturn(postings(posting(doc1, 2.1f)));
+		when(termIndex.postingsList(id("Desc2"))).thenReturn(postings(posting(doc1, 3.2f), posting(doc3, 3.3f)));
+		when(termIndex.postingsList(id("Desc3"))).thenReturn(postings(posting(doc1, 4.3f), posting(doc2, 4.4f), posting(doc3, 4.5f)));
 
 		docIndex.prepare(termIndex);
 
-		Assert.assertEquals("Wrong Euclidean Distance for doc1", 2.1f, docIndex.getDoc(doc1).getEuclideanLength(), COMPARISON_DELTA);
-		Assert.assertEquals("Wrong Euclidean Distance for doc2", Math.sqrt(Math.pow(3.2f, 2) + Math.pow(3.3f, 2) + Math.pow(3.4f, 2)), docIndex.getDoc(doc2).getEuclideanLength(), COMPARISON_DELTA);
-		Assert.assertEquals("Wrong Euclidean Distance for doc3", Math.sqrt(Math.pow(4.5f, 2) + Math.pow(4.6f, 2)), docIndex.getDoc(doc3).getEuclideanLength(), COMPARISON_DELTA);
+		Assert.assertEquals("Wrong Euclidean Distance for doc1", ed(2.1f, 3.2f, 4.3f), docIndex.getDoc(doc1).getEuclideanLength(), COMPARISON_DELTA);
+		Assert.assertEquals("Wrong Euclidean Distance for doc2", ed(4.4f), docIndex.getDoc(doc2).getEuclideanLength(), COMPARISON_DELTA);
+		Assert.assertEquals("Wrong Euclidean Distance for doc3", ed(3.3f, 4.5f), docIndex.getDoc(doc3).getEuclideanLength(), COMPARISON_DELTA);
 	}
 
-	private List<Posting> postings(int docID, Float... tfidfs) {
-		List<Posting> postings = new LinkedList<>();
-		for (int i = 0; i < tfidfs.length; i++) {
-			postings.add(posting(docID, tfidfs[i]));
+	private static double ed(Float... ws) {
+		double ed = 0d;
+
+		for (int i = 0; i < ws.length; i++) {
+			ed += Math.pow(ws[i], 2);
 		}
-		return postings;
+
+		return Math.sqrt(ed);
+	}
+
+	private PostingsList postings(Posting... postings) {
+		PostingsList list = new PostingsList();
+		for (int i = 0; i < postings.length; i++) {
+			list.addPosting(postings[i]);
+		}
+
+		return list;
 	}
 
 	private Posting posting(int docID, float tfidf) {

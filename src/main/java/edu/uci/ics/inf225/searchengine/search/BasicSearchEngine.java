@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
+import edu.uci.ics.inf225.searchengine.index.Lexicon;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
@@ -26,6 +27,8 @@ public class BasicSearchEngine implements SearchEngine {
 	private DocumentIndex docIndex;
 
 	private TermIndex termIndex;
+
+	private Lexicon lexicon;
 
 	private TextTokenizer tokenizer;
 
@@ -58,6 +61,7 @@ public class BasicSearchEngine implements SearchEngine {
 		ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(filename));
 
 		try {
+			lexicon = (Lexicon) inputStream.readObject();
 			docIndex = (DocumentIndex) inputStream.readObject();
 			termIndex = (TermIndex) inputStream.readObject();
 		} catch (ClassNotFoundException e) {
@@ -91,7 +95,10 @@ public class BasicSearchEngine implements SearchEngine {
 					 * Process only if this query term has not been processed
 					 * before.
 					 */
-					postings.put(queryTerm, this.termIndex.postingsList(queryTerm));
+					Integer termID = lexicon.getTermID(queryTerm);
+					if (termID != null) {
+						postings.put(queryTerm, this.termIndex.postingsList(termID));
+					}
 				}
 			}
 

@@ -3,6 +3,8 @@ package edu.uci.ics.inf225.searchengine;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,7 @@ import edu.uci.ics.inf225.searchengine.dbreader.ClobSizePredicate;
 import edu.uci.ics.inf225.searchengine.dbreader.DBReader;
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
+import edu.uci.ics.inf225.searchengine.index.Lexicon;
 import edu.uci.ics.inf225.searchengine.index.StringHashCompoundTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
@@ -36,6 +39,8 @@ public class IndexWriterController {
 
 	private SimilarityFilter filter;
 
+	private Lexicon lexicon;
+
 	private static final Logger dupsLogger = LoggerFactory.getLogger("duplogger");
 
 	private static final Logger console = LoggerFactory.getLogger("console");
@@ -50,12 +55,17 @@ public class IndexWriterController {
 	private PageToken cachedPageToken = new PageToken();
 
 	public IndexWriterController() {
+		lexicon = createLexicon();
 		docIndex = createDocumentIndex();
 		termIndex = createTermIndex();
 		indexer = createIndexer();
 		tokenizer = createPageTokenizer();
 		reader = createDBReader();
 		filter = createSimilarityFilter();
+	}
+
+	private Lexicon createLexicon() {
+		return new Lexicon();
 	}
 
 	private DBReader createDBReader() {
@@ -67,7 +77,7 @@ public class IndexWriterController {
 	}
 
 	private Indexer createIndexer() {
-		return new Indexer(termIndex, docIndex);
+		return new Indexer(termIndex, docIndex, lexicon);
 	}
 
 	private TermIndex createTermIndex() {
@@ -162,11 +172,12 @@ public class IndexWriterController {
 	 * @throws IOException
 	 */
 	private void processTokenStream(int docID, PageTokenStream tokenStream, byte type) throws IOException {
+		List<String> terms = new LinkedList<>();
 		while (tokenStream.increment()) {
 			PageToken token = tokenStream.next();
-
-			indexer.indexTerm(token.getTerm(), docID, type);
+			terms.add(token.getTerm());
 		}
+		indexer.indexTerms(terms, docID, type);
 		tokenStream.close();
 	}
 

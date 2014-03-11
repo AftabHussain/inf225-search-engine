@@ -2,10 +2,7 @@ package edu.uci.ics.inf225.searchengine.index;
 
 import java.io.Externalizable;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
-import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public abstract class CompoundTermIndex implements TermIndex, Externalizable {
@@ -16,13 +13,13 @@ public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void newTerm(int docID, String term, byte tokenType) {
-		TermIndex termIndex = getIndexFor(term);
+	public void newTerm(int docID, int termID, byte tokenType) {
+		TermIndex termIndex = getIndexFor(termID);
 
-		termIndex.newTerm(docID, term, tokenType);
+		termIndex.newTerm(docID, termID, tokenType);
 	}
 
-	protected abstract TermIndex getIndexFor(String term);
+	protected abstract TermIndex getIndexFor(int term);
 
 	protected abstract Iterator<TermIndex> getAllIndices();
 
@@ -37,26 +34,14 @@ public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public PostingsList postingsList(String term) {
-		TermIndex termIndex = this.getIndexFor(term);
-
-		return termIndex.postingsList(term);
-	}
-
-	@Override
-	public List<Posting> postingsForDoc(int docID) {
-		List<Posting> postings = new LinkedList<>();
-		Iterator<TermIndex> allIndicesIterator = this.getAllIndices();
-
-		while (allIndicesIterator.hasNext()) {
-			TermIndex termIndex = allIndicesIterator.next();
-			postings.addAll(termIndex.postingsForDoc(docID));
-		}
-		return postings;
-	}
-
-	@Override
-	public double idf(String term) {
+	public double idf(int term) {
 		return this.getIndexFor(term).idf(term);
+	}
+
+	@Override
+	public PostingsList postingsList(int termID) {
+		TermIndex termIndex = this.getIndexFor(termID);
+
+		return termIndex.postingsList(termID);
 	}
 }

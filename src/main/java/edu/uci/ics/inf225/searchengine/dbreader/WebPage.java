@@ -15,6 +15,8 @@ public class WebPage {
 
 	private float euclideanLength;
 
+	private byte slashes;
+
 	private Map<String, String> links;
 
 	public WebPage() {
@@ -23,6 +25,14 @@ public class WebPage {
 
 	public String getUrl() {
 		return url;
+	}
+
+	public byte getSlashes() {
+		return slashes;
+	}
+
+	public void setSlashes(byte slashes) {
+		this.slashes = slashes;
 	}
 
 	public void addLink(String anchor, String url) {

@@ -14,12 +14,21 @@ import java.sql.Types;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 
 public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
+
+	private static final int NUMBER_OF_METADATA_FIELDS = 2;
+
+	/*
+	 * Field indices.
+	 */
+	public static final int EUCLIDEAN_LENGTH_INDEX = 0;
+	public static final int SLASHES_INDEX = 1;
 
 	private static final int MAX_DESC_LENGTH = 500;
 
@@ -122,7 +131,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 		try {
 			this.insert(docID, page);
-			initDocData(docID);
+			initDocData(page, docID);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -133,12 +142,26 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		return docID;
 	}
 
-	private void initDocData(Integer docID) {
-		this.docsData.put(docID, createEmptyDocData());
+	private void initDocData(WebPage page, Integer docID) {
+		Object[] docData = createEmptyDocData();
+		docData[SLASHES_INDEX] = computeSlashes(page.getUrl());
+		this.docsData.put(docID, docData);
+	}
+
+	private byte computeSlashes(String url) {
+		// FIXME URL should be canonicalized to prevent double slashes and
+		// things like that.
+		byte slashes = 0;
+		for (int i = 0; i < url.length(); i++) {
+			if (url.charAt(i) == '/') {
+				slashes++;
+			}
+		}
+		return slashes;
 	}
 
 	private Object[] createEmptyDocData() {
-		return new Object[1];
+		return new Object[NUMBER_OF_METADATA_FIELDS];
 	}
 
 	@Override
@@ -159,8 +182,14 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 				page.setTitle(resultSet.getString(3));
 				page.setContent(resultSet.getString(4));
 				Object[] docData = this.docsData.get(docID);
-				if (docData != null && docData[0] != null) {
-					page.setEuclideanLength((float) docData[0]);
+				if (docData != null) {
+					if (docData[EUCLIDEAN_LENGTH_INDEX] != null) {
+						page.setEuclideanLength((float) docData[EUCLIDEAN_LENGTH_INDEX]);
+					}
+
+					if (docData[SLASHES_INDEX] != null) {
+						page.setSlashes((byte) docData[SLASHES_INDEX]);
+					}
 				}
 			}
 			resultSet.close();
@@ -187,24 +216,44 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		out.writeInt(counter);
+		out.writeInt(this.docsData.size());
+		for (Entry<Integer, Object[]> eachDocData : this.docsData.entrySet()) {
+			out.writeInt(eachDocData.getKey());
+			out.writeObject(eachDocData.getValue());
+		}
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		counter = in.readInt();
+		int count = in.readInt();
+
+		this.docsData = new HashMap<>(count);
+
+		for (int i = 0; i < count; i++) {
+			this.docsData.put(in.readInt(), (Object[]) in.readObject());
+		}
 	}
 
 	@Override
 	public void prepare(TermIndex termIndex) {
-		/*
-		 * Calculate Eucledian Length.
-		 */
 		for (int i = 1; i <= counter; i++) {
 			// Taking advantage of predictable doc IDs...
 			List<Posting> postings = termIndex.postingsForDoc(i);
 
+			/*
+			 * Compute metadata.
+			 */
 			Object[] aDocData = docsData.get(i);
-			aDocData[0] = calculateEuclideanLength(postings);
+
+			/*
+			 * Calculate Eucledian Length.
+			 */
+			if (postings.isEmpty()) {
+				aDocData[EUCLIDEAN_LENGTH_INDEX] = Float.MAX_VALUE;
+			} else {
+				aDocData[EUCLIDEAN_LENGTH_INDEX] = calculateEuclideanLength(postings);
+			}
 		}
 	}
 

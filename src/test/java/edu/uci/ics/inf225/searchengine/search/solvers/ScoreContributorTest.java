@@ -8,16 +8,18 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Before;
 
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
+import edu.uci.ics.inf225.searchengine.search.scoring.QueryScorer;
+import edu.uci.ics.inf225.searchengine.search.scoring.solvers.ScoringContributor;
 
 /**
  * This test case is an abstract test definition for different rankers to solve
@@ -25,17 +27,17 @@ import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
  * test that the obtained ranked is the same as the expected one.
  * 
  */
-public abstract class QueryRankerTest {
+public abstract class ScoreContributorTest {
 
-	private QueryRanker queryRanker;
+	private ScoringContributor scoreContributor;
 
 	@Before
 	public void setUp() throws Exception {
-		queryRanker = createQueryRanker();
+		scoreContributor = createScoreContributor();
 
 	}
 
-	protected void runQuery(Map<String, PostingsList> postingsLists, List<String> allQueryTerms, List<Integer> expectedRankingDocs) {
+	protected void runQuery(Map<String, PostingsList> postingsLists, List<String> allQueryTerms, Map<Integer, Double> expectedScores) {
 		/*
 		 * Remove the unrelated postings.
 		 */
@@ -46,11 +48,15 @@ public abstract class QueryRankerTest {
 			postingsLists.remove(key);
 		}
 
-		List<Integer> rankedDocs = getQueryRanker().query(allQueryTerms, postingsLists, expectedRankingDocs.size(), getTermIndex(), getDocIndex());
+		QueryScorer queryScorer = new QueryScorer();
 
-		for (int i = 0; i < rankedDocs.size(); i++) {
-			System.out.println("Checking Doc " + (i + 1) + ". Expected=[" + expectedRankingDocs.get(i) + "] Obtained=[" + rankedDocs.get(i) + "]");
-			Assert.assertEquals("Wrong Ranking for Doc " + (i + 1), expectedRankingDocs.get(i), rankedDocs.get(i));
+		getQueryRanker().score(allQueryTerms, postingsLists, getTermIndex(), getDocIndex(), queryScorer);
+
+		Assert.assertEquals("The number of scores is different from the expected one", expectedScores.size(), queryScorer.count());
+
+		for (Entry<Integer, Double> expectedDocScore : expectedScores.entrySet()) {
+			Assert.assertEquals("Score for Doc#" + expectedDocScore.getKey() + " is wrong.", expectedDocScore.getValue(), queryScorer.getScorer(expectedDocScore.getKey()).getTextCosineSimilarity(),
+					0.01d);
 		}
 	}
 
@@ -81,11 +87,11 @@ public abstract class QueryRankerTest {
 		return mock(DocumentIndex.class);
 	}
 
-	protected QueryRanker getQueryRanker() {
-		return queryRanker;
+	protected ScoringContributor getQueryRanker() {
+		return scoreContributor;
 	}
 
-	protected abstract QueryRanker createQueryRanker();
+	protected abstract ScoringContributor createScoreContributor();
 
 	protected static Posting posting(int docID, int tf, float tfidf) {
 		Integer[] positions = new Integer[tf];

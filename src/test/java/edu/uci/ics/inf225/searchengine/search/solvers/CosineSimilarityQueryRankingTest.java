@@ -3,16 +3,21 @@ package edu.uci.ics.inf225.searchengine.search.solvers;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Test;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
+import edu.uci.ics.inf225.searchengine.search.scoring.solvers.CosineSimilarityQueryRanker;
+import edu.uci.ics.inf225.searchengine.search.scoring.solvers.ScoringContributor;
 
-public class CosineSimilarityQueryRankingTest extends QueryRankerTest {
+public class CosineSimilarityQueryRankingTest extends ScoreContributorTest {
 
 	@Override
-	protected QueryRanker createQueryRanker() {
+	protected ScoringContributor createScoreContributor() {
 		return new CosineSimilarityQueryRanker();
 	}
 
@@ -51,8 +56,17 @@ public class CosineSimilarityQueryRankingTest extends QueryRankerTest {
 		// CS(d5,q) = DP(d5,q)/(ED(d5)*ED(q))=0
 		// CS(d6,q) = DP(d6,q)/(ED(d6)*ED(q))=0
 
-		this.runQuery(getTestPostingsLists(), list("Antony", "Brutus"), list(4, 1, 2));
-		this.runQuery(getTestPostingsLists(), list("Brutus", "Antony"), list(4, 1, 2));
+		// this.runQuery(getTestPostingsLists(), list("Antony", "Brutus"),
+		// list(4, 1, 2));
+		// this.runQuery(getTestPostingsLists(), list("Brutus", "Antony"),
+		// list(4, 1, 2));
+
+		Map<Integer, Double> expectedScores = new HashMap<>();
+		expectedScores.put(4, 0.344d);
+		expectedScores.put(1, 0.566d);
+		expectedScores.put(2, 0.775d);
+
+		this.runQuery(getTestPostingsLists(), list("Antony", "Brutus"), expectedScores);
 	}
 
 	@Override

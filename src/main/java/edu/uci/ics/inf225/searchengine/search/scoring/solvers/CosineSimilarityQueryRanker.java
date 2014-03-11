@@ -1,8 +1,5 @@
-package edu.uci.ics.inf225.searchengine.search.solvers;
+package edu.uci.ics.inf225.searchengine.search.scoring.solvers;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -16,12 +13,13 @@ import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import edu.uci.ics.inf225.searchengine.search.scoring.CosineSimilarityBuilder;
+import edu.uci.ics.inf225.searchengine.search.scoring.QueryScorer;
 import edu.uci.ics.inf225.searchengine.search.scoring.ScoringUtils;
 
-public class CosineSimilarityQueryRanker implements QueryRanker {
+public class CosineSimilarityQueryRanker implements ScoringContributor {
 
 	@Override
-	public List<Integer> query(List<String> allQueryTerms, Map<String, PostingsList> postingsLists, int limit, TermIndex termIndex, DocumentIndex docIndex) {
+	public void score(List<String> allQueryTerms, Map<String, PostingsList> postingsLists, TermIndex termIndex, DocumentIndex docIndex, QueryScorer queryScorer) {
 		Map<String, Integer> queryCardinalityMap = CollectionUtils.getCardinalityMap(allQueryTerms);
 
 		Map<Integer, CosineSimilarityBuilder> cosSimPerDoc = new HashMap<>();
@@ -50,35 +48,7 @@ public class CosineSimilarityQueryRanker implements QueryRanker {
 
 		for (Entry<Integer, CosineSimilarityBuilder> entry : cosSimPerDoc.entrySet()) {
 			entry.getValue().calculate(docIndex.getDoc(entry.getKey()).getEuclideanLength(), queryEuclideanLength);
+			queryScorer.getScorer(entry.getKey()).setTextCosineSimilarity(entry.getValue().getCachedCosineSimilary());
 		}
-
-		List<Entry<Integer, CosineSimilarityBuilder>> rankedEntries = new ArrayList<>(cosSimPerDoc.entrySet());
-
-		Collections.sort(rankedEntries, new Comparator<Entry<Integer, CosineSimilarityBuilder>>() {
-
-			@Override
-			public int compare(Entry<Integer, CosineSimilarityBuilder> o1, Entry<Integer, CosineSimilarityBuilder> o2) {
-				if (o1.getValue().getCachedCosineSimilary() > o2.getValue().getCachedCosineSimilary()) {
-					return 1;
-				} else if ((o1.getValue().getCachedCosineSimilary() == o2.getValue().getCachedCosineSimilary())) {
-					return 0;
-				} else {
-					return -1;
-				}
-			}
-
-		});
-
-		List<Integer> rankedDocs = new ArrayList<>(limit);
-
-		int i = 0;
-		for (Entry<Integer, CosineSimilarityBuilder> entry : rankedEntries) {
-			if (i < limit) {
-				rankedDocs.add(entry.getKey());
-				i++;
-			}
-		}
-
-		return rankedDocs;
 	}
 }

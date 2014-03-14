@@ -15,7 +15,6 @@ import edu.uci.ics.inf225.searchengine.index.docs.DocIDGenerator;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
-import edu.uci.ics.inf225.searchengine.index.postings.PostingGlobals;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageToken;
 import edu.uci.ics.inf225.searchengine.tokenizer.PageTokenStream;
@@ -27,7 +26,7 @@ public class IndexerTest {
 
 	private Indexer indexer;
 
-	private TermIndex termIndex;
+	private MultiFieldTermIndex termIndex;
 
 	private DocumentIndex docIndex;
 
@@ -35,11 +34,13 @@ public class IndexerTest {
 
 	private TextTokenizer tokenizer;
 
+	private static final String TEST_FIELD = "testfield";
+
 	@Before
 	public void setup() throws IOException {
 		DocIDGenerator.getInstance().reset();
 		docIndex = new SimpleDocumentIndex();
-		termIndex = new AtomicTermIndex();
+		termIndex = new MultiFieldTermIndex();
 		lexicon = new Lexicon();
 		indexer = new Indexer(termIndex, docIndex, lexicon);
 		tokenizer = new TextTokenizer();
@@ -71,7 +72,7 @@ public class IndexerTest {
 
 	private void assertTFIDFInPostings(String term, Double... tfidfs) {
 		int termID = lexicon.getTermID(term);
-		PostingsList term1PostingList = termIndex.postingsList(termID);
+		PostingsList term1PostingList = termIndex.getIndex(TEST_FIELD).postingsList(termID);
 		Iterator<Posting> termPostingIterator = term1PostingList.iterator();
 
 		for (int i = 0; i < tfidfs.length; i++) {
@@ -129,7 +130,7 @@ public class IndexerTest {
 		assertDocForTerm("term15", posting(4, 1));
 		assertDocForTerm("term16", posting(4, 1));
 
-		Assert.assertEquals("Number of unique terms is wrong", 16, termIndex.count());
+		Assert.assertEquals("Number of unique terms is wrong", 16, lexicon.size());
 	}
 
 	private Posting posting(int docID, int tf) {
@@ -138,7 +139,7 @@ public class IndexerTest {
 
 	private void assertDocForTerm(String term, Posting... postings) {
 		int termID = lexicon.getTermID(term);
-		PostingsList postingsList = termIndex.postingsList(termID);
+		PostingsList postingsList = termIndex.getIndex(TEST_FIELD).postingsList(termID);
 
 		PostingsList expectedTermInDocs = createPostingsList(postings);
 
@@ -181,7 +182,7 @@ public class IndexerTest {
 				PageToken token = stream.next();
 				terms.add(token.getTerm());
 			}
-			indexer.indexTerms(terms, docID, PostingGlobals.TEXT_TYPE);
+			indexer.indexTerms(terms, docID, TEST_FIELD);
 		} finally {
 			stream.close();
 		}

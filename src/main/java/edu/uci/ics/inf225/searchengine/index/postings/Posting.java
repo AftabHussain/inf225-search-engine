@@ -16,27 +16,13 @@ public class Posting implements Externalizable {
 	private int tf = 0;
 	private float tfidf = 0;
 	private int docID;
-	private byte type;
 
 	public Posting() {
 	}
 
-	public Posting(int docID, int termFrequency, byte type) {
+	public Posting(int docID, int termFrequency) {
 		this.tf = termFrequency;
 		this.docID = docID;
-		this.type = type;
-	}
-
-	public Posting(int docID, int termFrequency) {
-		this(docID, termFrequency, PostingGlobals.TEXT_TYPE);
-	}
-
-	public byte getType() {
-		return type;
-	}
-
-	public void setType(byte type) {
-		this.type = type;
 	}
 
 	public void merge(Posting another) {

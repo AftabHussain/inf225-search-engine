@@ -9,9 +9,9 @@ import org.apache.commons.collections.IteratorUtils;
 
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 
-public class StringHashCompoundTermIndex extends CompoundTermIndex {
+public class BoundedArrayCompoundTermIndex extends CompoundTermIndex {
 
-	private static final int DEFAULT_BACKETS = 10;
+	private static final int DEFAULT_BACKETS = 16; // MUST BE POWER OF 2.
 
 	private TermIndex[] indices;
 
@@ -19,11 +19,15 @@ public class StringHashCompoundTermIndex extends CompoundTermIndex {
 
 	private static final long serialVersionUID = 1L;
 
-	public StringHashCompoundTermIndex() {
+	public BoundedArrayCompoundTermIndex() {
 		this(DEFAULT_BACKETS);
 	}
 
-	public StringHashCompoundTermIndex(int buckets) {
+	/**
+	 * @param buckets
+	 *            IT MUST BE POWER OF 2.
+	 */
+	public BoundedArrayCompoundTermIndex(int buckets) {
 		this.buckets = buckets;
 		initIndices();
 	}
@@ -45,7 +49,7 @@ public class StringHashCompoundTermIndex extends CompoundTermIndex {
 	}
 
 	private AtomicTermIndex createAtomicIndex() {
-		return new AtomicTermIndex();
+		return new AtomicTermIndex(10000000 / buckets);
 	}
 
 	@SuppressWarnings("unchecked")

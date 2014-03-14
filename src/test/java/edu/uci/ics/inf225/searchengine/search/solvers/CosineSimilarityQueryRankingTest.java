@@ -13,12 +13,13 @@ import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.CosineSimilarityQueryRanker;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.ScoringContributor;
+import edu.uci.ics.inf225.searchengine.search.scoring.updaters.TextCosineSimilarityScoreUpdater;
 
 public class CosineSimilarityQueryRankingTest extends ScoreContributorTest {
 
 	@Override
 	protected ScoringContributor createScoreContributor() {
-		return new CosineSimilarityQueryRanker();
+		return new CosineSimilarityQueryRanker(new TextCosineSimilarityScoreUpdater());
 	}
 
 	@Test

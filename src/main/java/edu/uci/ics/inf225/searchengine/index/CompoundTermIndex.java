@@ -13,10 +13,10 @@ public abstract class CompoundTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void newTerm(int docID, int termID, byte tokenType) {
+	public void newTerm(int docID, int termID) {
 		TermIndex termIndex = getIndexFor(termID);
 
-		termIndex.newTerm(docID, termID, tokenType);
+		termIndex.newTerm(docID, termID);
 	}
 
 	protected abstract TermIndex getIndexFor(int term);

@@ -2,6 +2,10 @@ package edu.uci.ics.inf225.searchengine.search.scoring;
 
 public class DocScorer implements Comparable<DocScorer> {
 
+	public static double TEXT_COSINE_WEIGHT = 1d;
+	public static double TITLE_COSINE_WEIGHT = 1d;
+	public static double SLASHES_WEIGHT = 0.2d;
+
 	private int docID;
 
 	private double textCosineSimilarity;
@@ -57,7 +61,10 @@ public class DocScorer implements Comparable<DocScorer> {
 
 	public double score() {
 		// TODO Implement scoring formula.
-		return this.textCosineSimilarity;
+		// The following is BETTER:
+		// Higher cosine similarity.
+		// Lower number of slashes.
+		return TEXT_COSINE_WEIGHT * this.textCosineSimilarity + SLASHES_WEIGHT * (1d / (double) this.numberOfSlashes) + TITLE_COSINE_WEIGHT * this.titleCosineSimilarity;
 	}
 
 	/**

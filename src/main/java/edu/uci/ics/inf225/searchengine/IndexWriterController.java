@@ -12,10 +12,10 @@ import org.slf4j.LoggerFactory;
 import edu.uci.ics.inf225.searchengine.dbreader.ClobSizePredicate;
 import edu.uci.ics.inf225.searchengine.dbreader.DBReader;
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
+import edu.uci.ics.inf225.searchengine.index.IndexGlobals;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
 import edu.uci.ics.inf225.searchengine.index.Lexicon;
-import edu.uci.ics.inf225.searchengine.index.StringHashCompoundTermIndex;
-import edu.uci.ics.inf225.searchengine.index.TermIndex;
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.HSQLDocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingGlobals;
@@ -33,7 +33,7 @@ public class IndexWriterController {
 
 	private DocumentIndex docIndex;
 
-	private TermIndex termIndex;
+	private MultiFieldTermIndex termIndex;
 
 	private TextTokenizer tokenizer;
 
@@ -47,7 +47,7 @@ public class IndexWriterController {
 
 	private static final Logger log = LoggerFactory.getLogger(IndexWriterController.class);
 
-	private static final long MAX_CLOB_SIZE = 5 * 1024 * 1024; // 5 MB.
+	private static final long MAX_CLOB_SIZE = 1 * 1024 * 1024; // 1 MB.
 
 	/*
 	 * PageTokenizer optimizations (re-use objects)
@@ -80,9 +80,8 @@ public class IndexWriterController {
 		return new Indexer(termIndex, docIndex, lexicon);
 	}
 
-	private TermIndex createTermIndex() {
-		// return new AtomicTermIndex();
-		return new StringHashCompoundTermIndex(100);
+	private MultiFieldTermIndex createTermIndex() {
+		return new MultiFieldTermIndex();
 	}
 
 	private DocumentIndex createDocumentIndex() {
@@ -144,13 +143,13 @@ public class IndexWriterController {
 			 * Tokenize page contents (body).
 			 */
 			PageTokenStream tokenStream = tokenizer.tokenize(page.getContent(), cachedPageToken);
-			processTokenStream(docID, tokenStream, PostingGlobals.TEXT_TYPE);
+			processTokenStream(docID, tokenStream, IndexGlobals.BODY_FIELD);
 
 			/*
 			 * Tokenize page title.
 			 */
 			tokenStream = tokenizer.tokenize(page.getTitle(), cachedPageToken);
-			processTokenStream(docID, tokenStream, PostingGlobals.TITLE_TYPE);
+			processTokenStream(docID, tokenStream, IndexGlobals.TITLE_FIELD);
 
 			/*
 			 * TODO Process anchor links.
@@ -171,20 +170,22 @@ public class IndexWriterController {
 	 *            One value from {@link PostingGlobals}.
 	 * @throws IOException
 	 */
-	private void processTokenStream(int docID, PageTokenStream tokenStream, byte type) throws IOException {
+	private void processTokenStream(int docID, PageTokenStream tokenStream, String field) throws IOException {
 		List<String> terms = new LinkedList<>();
 		while (tokenStream.increment()) {
 			PageToken token = tokenStream.next();
 			terms.add(token.getTerm());
 		}
-		indexer.indexTerms(terms, docID, type);
 		tokenStream.close();
+		if (!terms.isEmpty()) {
+			indexer.indexTerms(terms, docID, field);
+		}
 	}
 
 	public void prepareIndex() {
 		console.info("Preparing index...");
 		this.termIndex.prepare(docIndex);
-		this.docIndex.prepare(termIndex);
+		this.docIndex.prepare(termIndex.getIndex(IndexGlobals.BODY_FIELD));
 		console.info("Index has been prepared.");
 	}
 

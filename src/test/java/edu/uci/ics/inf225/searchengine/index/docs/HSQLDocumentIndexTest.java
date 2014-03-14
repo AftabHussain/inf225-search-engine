@@ -4,9 +4,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -44,8 +41,12 @@ public class HSQLDocumentIndexTest {
 		return lexicon.getTermID(term);
 	}
 
-	private static <T> Set<T> set(T... elements) {
-		return new HashSet<>(Arrays.asList(elements));
+	private static <T> T[] set(T... elements) {
+		return elements;
+	}
+
+	private static int[] ints(int... elements) {
+		return elements;
 	}
 
 	@Test
@@ -57,9 +58,9 @@ public class HSQLDocumentIndexTest {
 		int doc2 = docIndex.addDoc(p2);
 		int doc3 = docIndex.addDoc(p3);
 
-		docIndex.addTerms(doc1, set(id("Desc1"), id("Desc2"), id("Desc3")));
-		docIndex.addTerms(doc2, set(id("Desc3")));
-		docIndex.addTerms(doc3, set(id("Desc2"), id("Desc3")));
+		docIndex.setTerms(doc1, ints(id("Desc1"), id("Desc2"), id("Desc3")));
+		docIndex.setTerms(doc2, ints(id("Desc3")));
+		docIndex.setTerms(doc3, ints(id("Desc2"), id("Desc3")));
 
 		when(termIndex.postingsList(id("Desc1"))).thenReturn(postings(posting(doc1, 2.1f)));
 		when(termIndex.postingsList(id("Desc2"))).thenReturn(postings(posting(doc1, 3.2f), posting(doc3, 3.3f)));

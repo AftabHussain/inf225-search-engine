@@ -16,10 +16,15 @@ import edu.uci.ics.inf225.searchengine.search.scoring.CosineSimilarityBuilder;
 import edu.uci.ics.inf225.searchengine.search.scoring.QueryScorer;
 import edu.uci.ics.inf225.searchengine.search.scoring.ScoringUtils;
 
-public class CosineSimilarityQueryRanker implements ScoringContributor {
+public class CosineSimilarityQueryRanker extends ScoringContributor<Double> {
+
+	public CosineSimilarityQueryRanker(DocScorerUpdater<Double> scoreUpdater) {
+		super(scoreUpdater);
+	}
 
 	@Override
 	public void score(List<String> allQueryTerms, Map<String, PostingsList> postingsLists, TermIndex termIndex, DocumentIndex docIndex, QueryScorer queryScorer) {
+		@SuppressWarnings("unchecked")
 		Map<String, Integer> queryCardinalityMap = CollectionUtils.getCardinalityMap(allQueryTerms);
 
 		Map<Integer, CosineSimilarityBuilder> cosSimPerDoc = new HashMap<>();
@@ -48,7 +53,7 @@ public class CosineSimilarityQueryRanker implements ScoringContributor {
 
 		for (Entry<Integer, CosineSimilarityBuilder> entry : cosSimPerDoc.entrySet()) {
 			entry.getValue().calculate(docIndex.getDoc(entry.getKey()).getEuclideanLength(), queryEuclideanLength);
-			queryScorer.getScorer(entry.getKey()).setTextCosineSimilarity(entry.getValue().getCachedCosineSimilary());
+			getScoreUpdater().update(queryScorer.getScorer(entry.getKey()), entry.getValue().getCachedCosineSimilary());
 		}
 	}
 }

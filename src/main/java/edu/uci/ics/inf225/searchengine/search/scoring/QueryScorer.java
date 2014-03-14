@@ -44,7 +44,7 @@ public class QueryScorer {
 		return this.docScorer.size();
 	}
 
-	public List<Integer> top(int n) {
+	public List<DocScorer> sortedScorers() {
 		// It must have random access for performance reasons.
 		ArrayList<DocScorer> docScorers = new ArrayList<>(this.docScorer.values());
 
@@ -53,13 +53,18 @@ public class QueryScorer {
 		// TODO Improve algorithm.
 		Collections.reverse(docScorers);
 
+		return docScorers;
+	}
+
+	public List<Integer> top(int n) {
+		List<DocScorer> docScorers = this.sortedScorers();
+
 		List<Integer> topDocs = new ArrayList<>(n);
 		if (docScorers.size() < n) {
 			for (DocScorer docScorer : docScorers) {
 				topDocs.add(docScorer.getDocID());
 			}
 		} else {
-			// for (int i = docScorers.size() - n; i < docScorers.size(); i++) {
 			for (int i = 0; i < n; i++) {
 				topDocs.add(docScorers.get(i).getDocID());
 			}

@@ -17,7 +17,6 @@ import edu.uci.ics.inf225.searchengine.index.Lexicon;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.SimpleDocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
-import edu.uci.ics.inf225.searchengine.index.postings.PostingGlobals;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public class TestSerialization {
@@ -67,17 +66,17 @@ public class TestSerialization {
 		int docB = docIndex.addDoc(page("B"));
 		int docC = docIndex.addDoc(page("C"));
 
-		termIndex.newTerm(docA, 1, PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docA, 2, PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docA, 3, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docA, 1);
+		termIndex.newTerm(docA, 2);
+		termIndex.newTerm(docA, 3);
 
-		termIndex.newTerm(docB, 1, PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docB, 2, PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docB, 3, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docB, 1);
+		termIndex.newTerm(docB, 2);
+		termIndex.newTerm(docB, 3);
 
-		termIndex.newTerm(docC, 1, PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docC, 2, PostingGlobals.TEXT_TYPE);
-		termIndex.newTerm(docC, 3, PostingGlobals.TEXT_TYPE);
+		termIndex.newTerm(docC, 1);
+		termIndex.newTerm(docC, 2);
+		termIndex.newTerm(docC, 3);
 
 		Assert.assertEquals("Problem occurred when serializing AtomicTermIndex", termIndex, marshalled(termIndex));
 	}

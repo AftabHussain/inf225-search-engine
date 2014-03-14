@@ -28,7 +28,7 @@ public class DBReader {
 	private static final String DB_PATH = "db/crawlerdb";
 
 	private static final int PAGES_TO_READ = -1; // -1 for unlimited.
-	// private static final int PAGES_TO_READ = 2000;
+	// private static final int PAGES_TO_READ = 5000;
 
 	private Connection conn = null;
 
@@ -143,6 +143,7 @@ public class DBReader {
 					} else {
 						log.info("Skipping {} with size {}", url, clob.length());
 					}
+					clob.free();
 				}
 				return page != null;
 			} catch (SQLException e) {

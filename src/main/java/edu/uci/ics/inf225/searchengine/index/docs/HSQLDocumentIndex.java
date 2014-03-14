@@ -12,12 +12,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
@@ -38,8 +36,6 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 	private static final String DOCS_TABLE = "docs";
 
-	private static final String DOCS_TERMS_TABLE = "termsperdoc";
-
 	private static final String DB_PATH = "db/docindex";
 
 	private static final int MAX_TITLE_LENGTH = 300;
@@ -50,17 +46,13 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 	transient private PreparedStatement selectPS;
 
-	transient private PreparedStatement insertTermsPS;
-
-	transient private PreparedStatement selectTermsPS;
-
 	/**
 	 * This map contains all of the data associated to each document. It would
 	 * be similar {@link WebPage} but we use an array of Objects to save space.
 	 */
 	private Map<Integer, Object[]> docsData;
 
-	private Map<Integer, Set<Integer>> termsPerDoc;
+	private Map<Integer, int[]> termsPerDoc;
 
 	private int counter;
 
@@ -73,16 +65,6 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		// destroyDatabase();
 		createInsertPreparedStatement();
 		createSelectPreparedStatement();
-		createInsertTermsPreparedStatement();
-		createSelectTermsPreparedStatement();
-	}
-
-	private void createSelectTermsPreparedStatement() throws SQLException {
-		this.selectTermsPS = conn.prepareStatement("SELECT termid FROM " + DOCS_TERMS_TABLE + " WHERE docid=?");
-	}
-
-	private void createInsertTermsPreparedStatement() throws SQLException {
-		this.insertTermsPS = conn.prepareStatement("INSERT INTO " + DOCS_TERMS_TABLE + " (docid,termid) VALUES (?,?)");
 	}
 
 	public void destroyDatabase() throws SQLException {
@@ -102,9 +84,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		Statement st = null;
 		st = conn.createStatement();
 		st.execute("CREATE TABLE IF NOT EXISTS " + DOCS_TABLE + " ( docid INTEGER, url VARCHAR(1000), title VARCHAR(" + MAX_TITLE_LENGTH + "), desc VARCHAR(" + MAX_DESC_LENGTH + "))");
-		st.execute("CREATE TABLE IF NOT EXISTS " + DOCS_TERMS_TABLE + " (docid INTEGER, termid INTEGER)");
 		st.execute("CREATE INDEX idx_docid ON " + DOCS_TABLE + " (docid)");
-		st.execute("CREATE INDEX idx_doctermid ON " + DOCS_TERMS_TABLE + " (docid)");
 
 		st.close();
 	}
@@ -116,7 +96,6 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		try {
 			st = conn.createStatement();
 			rs = st.executeQuery("DROP TABLE if exists " + DOCS_TABLE);
-			rs = st.executeQuery("DROP TABLE if exists " + DOCS_TERMS_TABLE);
 		} finally {
 			if (rs != null) {
 				rs.close();
@@ -182,7 +161,8 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 		// things like that.
 		byte slashes = 0;
 		for (int i = 0; i < url.length(); i++) {
-			if (url.charAt(i) == '/') {
+			if (url.charAt(i) == '/' && i + 1 < url.length()) { // Don't count
+																// last slash.
 				slashes++;
 			}
 		}
@@ -265,10 +245,10 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public void prepare(TermIndex termIndex) {
+	public void prepare(TermIndex bodyTermIndex) {
 		for (int i = 1; i <= counter; i++) {
 			// Taking advantage of predictable doc IDs...
-			List<Posting> postings = getPostingsForDoc(i, termIndex);
+			List<Posting> postings = getPostingsForDoc(i, bodyTermIndex);
 
 			/*
 			 * Compute metadata.
@@ -289,10 +269,10 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	private List<Posting> getPostingsForDoc(int docID, TermIndex termIndex) {
 		List<Posting> postings = new LinkedList<>();
 
-		Set<Integer> terms = this.getTerms(docID);
+		int[] terms = this.getTerms(docID);
 
-		for (Integer termID : terms) {
-			PostingsList postingsList = termIndex.postingsList(termID);
+		for (int i = 0; i < terms.length; i++) {
+			PostingsList postingsList = termIndex.postingsList(terms[i]);
 
 			Posting posting = postingsList.get(docID);
 			if (posting != null) {
@@ -313,60 +293,18 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public void addTerms(int docID, Set<Integer> termIDs) {
-		Set<Integer> termIDsPerDoc = this.termsPerDoc.get(docID);
-
-		if (termIDsPerDoc == null) {
-			termIDsPerDoc = new HashSet<>(termIDs.size());
-			this.termsPerDoc.put(docID, termIDsPerDoc);
-		}
-
-		termIDsPerDoc.addAll(termIDs);
-	}
-
-	private void addTermsINDB(int docID, Set<Integer> termIDs) {
-		try {
-			if (!termIDs.isEmpty()) {
-
-				for (Integer termID : termIDs) {
-					insertTermsPS.setInt(1, docID);
-					insertTermsPS.setInt(2, termID);
-					insertTermsPS.addBatch();
-				}
-				insertTermsPS.executeBatch();
-				conn.commit();
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void setTerms(int docID, int[] termIDs) {
+		this.termsPerDoc.put(docID, termIDs);
 	}
 
 	@Override
-	public Set<Integer> getTerms(int docID) {
-		Set<Integer> termIDs = this.termsPerDoc.get(docID);
+	public int[] getTerms(int docID) {
+		int[] termIDs = this.termsPerDoc.get(docID);
 
 		if (termIDs != null) {
 			return termIDs;
 		} else {
-			return new HashSet<>();
-		}
-	}
-
-	private Set<Integer> getTermsFromDB(int docID) {
-		Set<Integer> termIDs = new HashSet<>();
-		try {
-			this.selectTermsPS.setInt(1, docID);
-			ResultSet resultSet = this.selectTermsPS.executeQuery();
-
-			while (resultSet.next()) {
-				termIDs.add(resultSet.getInt(1));
-			}
-			resultSet.close();
-			return termIDs;
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return termIDs;
+			return new int[0];
 		}
 	}
 }

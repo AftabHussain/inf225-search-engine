@@ -5,7 +5,7 @@ import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public interface TermIndex {
 
-	public void newTerm(int docID, int termID, byte tokenType);
+	public void newTerm(int docID, int termID);
 
 	public int count();
 

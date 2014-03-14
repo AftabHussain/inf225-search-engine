@@ -1,22 +1,20 @@
 package edu.uci.ics.inf225.searchengine.index;
 
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.DocIDPostingComparator;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
-import edu.uci.ics.inf225.searchengine.utils.MapUtils;
+import gnu.trove.map.hash.TIntObjectHashMap;
+import gnu.trove.procedure.TIntObjectProcedure;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+import java.util.Iterator;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AtomicTermIndex implements TermIndex, Externalizable {
 
@@ -24,12 +22,16 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 
 	private static final long serialVersionUID = 1L;
 
-	private Map<Integer, PostingsList> termsMap;
+	// private Map<Integer, PostingsList> termsMap;
+	private TIntObjectHashMap<PostingsList> termsMap;
 
 	private Lexicon lexicon;
 
-	private HashMap<Integer, PostingsList> createTermsMap(int initialCapacity) {
-		return new HashMap<>(initialCapacity);
+	// private HashMap<Integer, PostingsList> createTermsMap(int
+	// initialCapacity) {
+	// return new HashMap<>(initialCapacity);
+	private TIntObjectHashMap<PostingsList> createTermsMap(int initialCapacity) {
+		return new TIntObjectHashMap<>(initialCapacity);
 	}
 
 	public AtomicTermIndex() {
@@ -57,12 +59,26 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
+	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeInt(termsMap.size());
-		for (Entry<Integer, PostingsList> entry : termsMap.entrySet()) {
-			out.writeInt(entry.getKey());
-			out.writeObject(entry.getValue());
-		}
+		// for (Entry<Integer, PostingsList> entry : termsMap.entrySet()) {
+		// out.writeInt(entry.getKey());
+		// out.writeObject(entry.getValue());
+		// }
+		termsMap.forEachEntry(new TIntObjectProcedure<PostingsList>() {
+
+			@Override
+			public boolean execute(int a, PostingsList b) {
+				try {
+					out.writeInt(a);
+					out.writeObject(b);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -76,7 +92,7 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	}
 
 	@Override
-	public void newTerm(int docID, int termID, byte tokenType) {
+	public void newTerm(int docID, int termID) {
 		PostingsList postingsList;
 		Posting posting;
 
@@ -94,7 +110,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 			postingsList.addPosting(posting);
 		}
 		posting.increaseTF();
-		posting.setType(tokenType);
 	}
 
 	@Override
@@ -110,14 +125,17 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	@Override
 	public boolean equals(Object obj) {
 		AtomicTermIndex another = (AtomicTermIndex) obj;
-		return MapUtils.mapsAreEqual(this.termsMap, another.termsMap);
+		// return MapUtils.mapsAreEqual(this.termsMap, another.termsMap);
+		return this.termsMap.equals(another.termsMap);
 	}
 
 	@Override
 	public void prepare(DocumentIndex docIndex) {
 		int docCollectionSize = docIndex.count();
 
-		Iterator<PostingsList> postingsListIterator = this.termsMap.values().iterator();
+		// Iterator<PostingsList> postingsListIterator =
+		// this.termsMap.values().iterator();
+		Iterator<PostingsList> postingsListIterator = this.termsMap.valueCollection().iterator();
 
 		while (postingsListIterator.hasNext()) {
 			PostingsList postingsList = postingsListIterator.next();

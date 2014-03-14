@@ -1,36 +1,41 @@
 package edu.uci.ics.inf225.searchengine.index;
 
+import gnu.trove.map.hash.TObjectIntHashMap;
+
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-import edu.uci.ics.inf225.searchengine.utils.MapUtils;
-
 public class Lexicon implements Externalizable {
 
-	private Map<String, Integer> terms;
+	// private Map<Object, Integer> terms;
+	private TObjectIntHashMap<Object> terms;
 
 	private int nextID;
 
 	public Lexicon() {
-		terms = new HashMap<>(3000000);
+		// terms = new HashMap<>(10000000);
+		terms = new TObjectIntHashMap<>(10000000);
 		nextID = 1;
 	}
 
-	public Integer getTermID(String term) {
-		Integer id = terms.get(term);
-
-		if (id == null) {
-			id = nextID++;
+	public int getTermID(Object term) {
+		// Integer id = terms.get(term);
+		//
+		// if (id == null) {
+		// id = nextID++;
+		// terms.put(term, id);
+		// }
+		//
+		// return id;
+		if (!terms.contains(term)) {
+			int id = nextID++;
 			terms.put(term, id);
 		}
-
-		return id;
+		return terms.get(term);
 	}
 
 	@Override
@@ -39,10 +44,12 @@ public class Lexicon implements Externalizable {
 		out.writeObject(terms);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		nextID = in.readInt();
-		terms = (Map<String, Integer>) in.readObject();
+		// terms = (Map<Object, Integer>) in.readObject();
+		terms = (TObjectIntHashMap<Object>) in.readObject();
 	}
 
 	@Override
@@ -58,6 +65,12 @@ public class Lexicon implements Externalizable {
 	@Override
 	public boolean equals(Object obj) {
 		Lexicon lexicon2 = (Lexicon) obj;
-		return this.nextID == lexicon2.nextID && MapUtils.mapsAreEqual(this.terms, lexicon2.terms);
+		// return this.nextID == lexicon2.nextID &&
+		// MapUtils.mapsAreEqual(this.terms, lexicon2.terms);
+		return this.nextID == lexicon2.nextID && this.terms.equals(lexicon2.terms);
+	}
+
+	public int size() {
+		return this.terms.size();
 	}
 }

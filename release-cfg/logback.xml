@@ -1,0 +1,52 @@
+<configuration>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <!-- encoders are assigned the type
+         ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%-5level] [%logger{36}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%msg%n</pattern>
+    </encoder>
+  </appender>
+  <appender name="file" class="ch.qos.logback.core.FileAppender">
+  	<file>searchengine.log</file>
+  	<append>false</append>
+    <encoder>
+      <pattern>%d{HH:mm:ss.SSS} [%-5level] [%logger{36}] - %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+	<appender name="dupsappender" class="ch.qos.logback.core.FileAppender">
+  		<file>duplicates.log</file>
+  		<append>false</append>
+   	 <encoder>
+   	   <pattern>%d{HH:mm:ss.SSS}: [%msg]%n</pattern>
+   	 </encoder>
+  	</appender>
+  
+  <logger name="console" level="INFO">
+  	<appender-ref ref="consoleAppender" />
+  </logger>
+
+  <logger name="edu.uci.ics" level="ERROR">
+  	<appender-ref ref="STDOUT" />
+    <appender-ref ref="file" />
+  </logger>
+  
+  <logger name="edu.uci.ics.inf225.searchengine.dbreader.DBReader" level="INFO">
+  	<appender-ref ref="STDOUT" />
+    <appender-ref ref="file" />
+  </logger>
+  
+  <logger name="duplogger" level="INFO">
+    <appender-ref ref="dupsappender" />
+  </logger>
+
+  <root level="ERROR">
+    <appender-ref ref="file" />
+  </root>
+</configuration>

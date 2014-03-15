@@ -15,11 +15,9 @@ public class PostingsList implements Externalizable {
 
 	private static final long serialVersionUID = 1L;
 
-	// private List<Posting> postings;
 	private ArrayList<Posting> postings;
 
 	public PostingsList() {
-		// postings = new LinkedList<>();
 		postings = new ArrayList<>();
 	}
 
@@ -28,35 +26,14 @@ public class PostingsList implements Externalizable {
 	}
 
 	public void addPosting(Posting posting) {
-		// this.addSortedByDocIDDesc(posting);
 		postings.add(posting);
 	}
-
-	// private void addSortedByDocIDDesc(Posting posting) {
-	// if (postings.isEmpty()) {
-	// postings.add(posting);
-	// } else {
-	//
-	// ListIterator<Posting> listIterator = postings.listIterator();
-	// while (listIterator.hasNext()) {
-	// Posting next = listIterator.next();
-	// if (posting.getDocID() > next.getDocID()) {
-	// listIterator.previous();
-	// listIterator.add(posting);
-	// return;
-	// } else if (posting.getDocID() == next.getDocID()) {
-	// next.merge(posting);
-	// }
-	// }
-	// }
-	// }
 
 	public Iterator<Posting> iterator() {
 		return postings.iterator();
 	}
 
 	public Posting get(int docID) {
-		// return getWhenItIsSortedByDocID(docID);
 		int index = binarySearch0(docID);
 		if (index > -1) {
 			return postings.get(index);
@@ -82,21 +59,6 @@ public class PostingsList implements Externalizable {
 		}
 		return -(low + 1); // key not found.
 	}
-
-	// private Posting getWhenItIsSortedByDocID(int docID) {
-	//
-	// ListIterator<Posting> listIterator = postings.listIterator();
-	// while (listIterator.hasNext()) {
-	// Posting next = listIterator.next();
-	// if (docID == next.getDocID()) {
-	// return next;
-	// } else if (docID > next.getDocID()) {
-	// // Don't keep searching.
-	// return null;
-	// }
-	// }
-	// return null;
-	// }
 
 	public int size() {
 		return postings.size();

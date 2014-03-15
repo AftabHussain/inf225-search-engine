@@ -18,7 +18,6 @@ import edu.uci.ics.inf225.searchengine.index.TwoGram;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import edu.uci.ics.inf225.searchengine.search.scoring.QueryScorer;
-import edu.uci.ics.inf225.searchengine.search.scoring.ScoringDebugger;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.CosineSimilarityQueryRanker;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.ScoringContributor;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.SlashesScoringContributor;
@@ -109,6 +108,7 @@ public class BasicSearchEngine implements SearchEngine {
 			List<TwoGram> twoGrams = new LinkedList<>();
 
 			obtainQueryTerms(stream, singleQueryTerms, twoGrams);
+			QueryScorer queryScorer = new QueryScorer();
 
 			for (TwoGram twoGram : twoGrams) {
 				Integer termID = lexicon.getTermID(twoGram);
@@ -127,11 +127,10 @@ public class BasicSearchEngine implements SearchEngine {
 				}
 			}
 
-			QueryScorer queryScorer = new QueryScorer();
-
 			bodyCosineSimilarity.score(twoGrams, bodyPostings, termIndex, docIndex, queryScorer, IndexGlobals.BODY_2GRAM_FIELD);
 			titleCosineSimilarity.score(twoGrams, titlePostings, termIndex, docIndex, queryScorer, IndexGlobals.TITLE_2GRAM_FIELD);
-			slashesContributor.score(twoGrams, bodyPostings, null, docIndex, queryScorer, null);
+			slashesContributor.score(null, bodyPostings, null, docIndex, queryScorer, null);
+			slashesContributor.score(null, titlePostings, null, docIndex, queryScorer, null);
 
 			numberOfResults = queryScorer.count();
 
@@ -163,14 +162,16 @@ public class BasicSearchEngine implements SearchEngine {
 
 				bodyCosineSimilarity.score(singleQueryTerms, bodyPostings, termIndex, docIndex, queryScorer, IndexGlobals.BODY_FIELD);
 				titleCosineSimilarity.score(singleQueryTerms, titlePostings, termIndex, docIndex, queryScorer, IndexGlobals.TITLE_FIELD);
-				slashesContributor.score(singleQueryTerms, bodyPostings, null, docIndex, queryScorer, null);
+				slashesContributor.score(null, bodyPostings, null, docIndex, queryScorer, null);
+				slashesContributor.score(null, titlePostings, null, docIndex, queryScorer, null);
 			}
 
 			/*
 			 * TODO REMOVE THIS FOR PRODUCTION!!!!!!!!!!
 			 */
-			ScoringDebugger debugger = new ScoringDebugger();
-			debugger.dump(docIndex, queryScorer, termIndex, query + ".query");
+			// ScoringDebugger debugger = new ScoringDebugger();
+			// debugger.dump(docIndex, queryScorer, termIndex, query +
+			// ".query");
 
 			QueryResult queryResult = createQueryResult(queryScorer.top(numberOfExpectedResults));
 			queryResult.setTotalPages(queryScorer.count());

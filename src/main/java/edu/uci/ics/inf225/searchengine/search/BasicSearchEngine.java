@@ -54,10 +54,6 @@ public class BasicSearchEngine implements SearchEngine {
 
 		// Number of slashes contributor.
 		slashesContributor = new SlashesScoringContributor(new SlashesScoringUpdater());
-
-		/*
-		 * TODO Apply Cos Sin in anchor text.
-		 */
 	}
 
 	public void start(String indexFilename) throws IOException {
@@ -93,32 +89,65 @@ public class BasicSearchEngine implements SearchEngine {
 	}
 
 	public QueryResult query(String query) throws QueryException {
+		final int numberOfExpectedResults = 10;
+		int numberOfResults = 0;
+
 		if (query.trim().isEmpty()) {
 			throw new QueryException("Query cannot be empty.");
 		}
+
 		long start = System.nanoTime();
 		PageTokenStream stream = null;
 		try {
 			stream = tokenizer.tokenize(query);
 
-			Map<String, PostingsList> bodyPostings = new HashMap<>();
+			Map<Object, PostingsList> bodyPostings = new HashMap<>();
 
-			Map<String, PostingsList> titlePostings = new HashMap<>();
+			Map<Object, PostingsList> titlePostings = new HashMap<>();
 
-			List<String> allQueryTerms = new LinkedList<>();
+			List<String> singleQueryTerms = new LinkedList<>();
 			List<TwoGram> twoGrams = new LinkedList<>();
 
-			obtainQueryTerms(stream, allQueryTerms, twoGrams);
+			obtainQueryTerms(stream, singleQueryTerms, twoGrams);
 
-			for (String queryTerm : allQueryTerms) {
-				if (!bodyPostings.containsKey(queryTerm)) {
-					/*
-					 * Process only if this query term has not been processed
-					 * before.
-					 */
+			for (TwoGram twoGram : twoGrams) {
+				Integer termID = lexicon.getTermID(twoGram);
+				if (termID != null) {
+					// Query only if the term has been seen before (present
+					// in the lexicon).
+					PostingsList bodyPostingsList = this.termIndex.getIndex(IndexGlobals.BODY_2GRAM_FIELD).postingsList(termID);
+					if (bodyPostingsList != null) {
+						bodyPostings.put(twoGram, bodyPostingsList);
+					}
+
+					PostingsList titlePostingsList = this.termIndex.getIndex(IndexGlobals.TITLE_2GRAM_FIELD).postingsList(termID);
+					if (titlePostingsList != null) {
+						titlePostings.put(twoGram, titlePostingsList);
+					}
+				}
+			}
+
+			QueryScorer queryScorer = new QueryScorer();
+
+			bodyCosineSimilarity.score(twoGrams, bodyPostings, termIndex, docIndex, queryScorer, IndexGlobals.BODY_2GRAM_FIELD);
+			titleCosineSimilarity.score(twoGrams, titlePostings, termIndex, docIndex, queryScorer, IndexGlobals.TITLE_2GRAM_FIELD);
+			slashesContributor.score(twoGrams, bodyPostings, null, docIndex, queryScorer, null);
+
+			numberOfResults = queryScorer.count();
+
+			/*
+			 * If we did not reach the expected number of results, will look for
+			 * single terms.
+			 */
+			if (numberOfResults < numberOfExpectedResults) {
+				bodyPostings.clear();
+				titlePostings.clear();
+
+				for (String queryTerm : singleQueryTerms) {
 					Integer termID = lexicon.getTermID(queryTerm);
 					if (termID != null) {
-						// Query only if the term has been seen before (present
+						// Query only if the term has been seen before
+						// (present
 						// in the lexicon).
 						PostingsList bodyPostingsList = this.termIndex.getIndex(IndexGlobals.BODY_FIELD).postingsList(termID);
 						if (bodyPostingsList != null) {
@@ -131,21 +160,19 @@ public class BasicSearchEngine implements SearchEngine {
 						}
 					}
 				}
+
+				bodyCosineSimilarity.score(singleQueryTerms, bodyPostings, termIndex, docIndex, queryScorer, IndexGlobals.BODY_FIELD);
+				titleCosineSimilarity.score(singleQueryTerms, titlePostings, termIndex, docIndex, queryScorer, IndexGlobals.TITLE_FIELD);
+				slashesContributor.score(singleQueryTerms, bodyPostings, null, docIndex, queryScorer, null);
 			}
-
-			QueryScorer queryScorer = new QueryScorer();
-
-			bodyCosineSimilarity.score(allQueryTerms, bodyPostings, termIndex.getIndex(IndexGlobals.BODY_FIELD), docIndex, queryScorer);
-			titleCosineSimilarity.score(allQueryTerms, titlePostings, termIndex.getIndex(IndexGlobals.TITLE_FIELD), docIndex, queryScorer);
-			slashesContributor.score(allQueryTerms, bodyPostings, null, docIndex, queryScorer);
 
 			/*
 			 * TODO REMOVE THIS FOR PRODUCTION!!!!!!!!!!
 			 */
 			ScoringDebugger debugger = new ScoringDebugger();
-			debugger.dump(docIndex, queryScorer, query + ".query");
+			debugger.dump(docIndex, queryScorer, termIndex, query + ".query");
 
-			QueryResult queryResult = createQueryResult(queryScorer.top(10));
+			QueryResult queryResult = createQueryResult(queryScorer.top(numberOfExpectedResults));
 			queryResult.setTotalPages(queryScorer.count());
 			queryResult.setExecutionTime(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start));
 			return queryResult;
@@ -171,6 +198,7 @@ public class BasicSearchEngine implements SearchEngine {
 				twoGram.setTerms(previousTerm, token.getTerm());
 				twoGrams.add(twoGram);
 			}
+			previousTerm = token.getTerm();
 		}
 	}
 

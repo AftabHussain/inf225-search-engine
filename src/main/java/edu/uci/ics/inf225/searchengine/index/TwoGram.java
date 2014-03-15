@@ -20,6 +20,9 @@ public class TwoGram implements Externalizable {
 
 	private static final String separator = " ";
 
+	// private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 5854571193521361902L;
+
 	public TwoGram() {
 	}
 
@@ -71,5 +74,12 @@ public class TwoGram implements Externalizable {
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		term1 = in.readUTF();
 		term2 = in.readUTF();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder(this.length());
+		builder.append(term1).append(separator).append(term2);
+		return builder.toString();
 	}
 }

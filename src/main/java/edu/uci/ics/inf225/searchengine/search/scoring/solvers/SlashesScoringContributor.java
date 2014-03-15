@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
-import edu.uci.ics.inf225.searchengine.index.TermIndex;
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
@@ -21,7 +21,7 @@ public class SlashesScoringContributor extends ScoringContributor<Byte> {
 	}
 
 	@Override
-	public void score(List<String> allQueryTerms, Map<String, PostingsList> postingsLists, TermIndex termIndex, DocumentIndex docIndex, QueryScorer queryScorer) {
+	public void score(List<? extends Object> allQueryTerms, Map<Object, PostingsList> postingsLists, MultiFieldTermIndex termIndex, DocumentIndex docIndex, QueryScorer queryScorer, String field) {
 		Set<Integer> docIDs = extractDocIDs(postingsLists);
 
 		for (Integer docID : docIDs) {
@@ -33,7 +33,7 @@ public class SlashesScoringContributor extends ScoringContributor<Byte> {
 		}
 	}
 
-	private Set<Integer> extractDocIDs(Map<String, PostingsList> postingsLists) {
+	private Set<Integer> extractDocIDs(Map<Object, PostingsList> postingsLists) {
 		Set<Integer> docIDs = new HashSet<>();
 		for (PostingsList postingsList : postingsLists.values()) {
 			Iterator<Posting> iterator = postingsList.iterator();

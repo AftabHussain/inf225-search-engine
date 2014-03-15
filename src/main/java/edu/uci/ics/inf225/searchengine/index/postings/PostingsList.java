@@ -5,12 +5,9 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.commons.collections.ListUtils;
 
@@ -18,67 +15,88 @@ public class PostingsList implements Externalizable {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Posting> postings;
+	// private List<Posting> postings;
+	private ArrayList<Posting> postings;
 
 	public PostingsList() {
-		// TODO Look for better data structure. Skip-list?
-		// postings = new FastSortedMap<Integer, Posting>();
-		postings = new LinkedList<>();
+		// postings = new LinkedList<>();
+		postings = new ArrayList<>();
 	}
 
-	public List<Posting> postings() {
+	public Collection<Posting> postings() {
 		return Collections.unmodifiableList(this.postings);
 	}
 
-	public void sort(Comparator<Posting> comparator) {
-		Collections.sort(postings, comparator);
-	}
-
 	public void addPosting(Posting posting) {
-		// TODO Use strategies.
-		this.addSortedByDocIDDesc(posting);
+		// this.addSortedByDocIDDesc(posting);
+		postings.add(posting);
 	}
 
-	private void addSortedByDocIDDesc(Posting posting) {
-		if (postings.isEmpty()) {
-			postings.add(posting);
-		} else {
-
-			ListIterator<Posting> listIterator = postings.listIterator();
-			while (listIterator.hasNext()) {
-				Posting next = listIterator.next();
-				if (posting.getDocID() > next.getDocID()) {
-					listIterator.previous();
-					listIterator.add(posting);
-					return;
-				} else if (posting.getDocID() == next.getDocID()) {
-					next.merge(posting);
-				}
-			}
-		}
-	}
+	// private void addSortedByDocIDDesc(Posting posting) {
+	// if (postings.isEmpty()) {
+	// postings.add(posting);
+	// } else {
+	//
+	// ListIterator<Posting> listIterator = postings.listIterator();
+	// while (listIterator.hasNext()) {
+	// Posting next = listIterator.next();
+	// if (posting.getDocID() > next.getDocID()) {
+	// listIterator.previous();
+	// listIterator.add(posting);
+	// return;
+	// } else if (posting.getDocID() == next.getDocID()) {
+	// next.merge(posting);
+	// }
+	// }
+	// }
+	// }
 
 	public Iterator<Posting> iterator() {
 		return postings.iterator();
 	}
 
 	public Posting get(int docID) {
-		return getWhenItIsSortedByDocID(docID);
+		// return getWhenItIsSortedByDocID(docID);
+		int index = binarySearch0(docID);
+		if (index > -1) {
+			return postings.get(index);
+		} else {
+			return null;
+		}
 	}
 
-	private Posting getWhenItIsSortedByDocID(int docID) {
-		ListIterator<Posting> listIterator = postings.listIterator();
-		while (listIterator.hasNext()) {
-			Posting next = listIterator.next();
-			if (docID == next.getDocID()) {
-				return next;
-			} else if (docID > next.getDocID()) {
-				// Don't keep searching.
-				return null;
-			}
+	private int binarySearch0(int docID) {
+		int low = 0;
+		int high = postings.size() - 1;
+
+		while (low <= high) {
+			int mid = (low + high) >>> 1;
+			int midVal = postings.get(mid).getDocID();
+			int cmp = midVal - docID;
+			if (cmp < 0)
+				low = mid + 1;
+			else if (cmp > 0)
+				high = mid - 1;
+			else
+				return mid; // key found
 		}
-		return null;
+		return -(low + 1); // key not found.
 	}
+
+	// private Posting getWhenItIsSortedByDocID(int docID) {
+	//
+	// ListIterator<Posting> listIterator = postings.listIterator();
+	// while (listIterator.hasNext()) {
+	// Posting next = listIterator.next();
+	// if (docID == next.getDocID()) {
+	// return next;
+	// } else if (docID > next.getDocID()) {
+	// // Don't keep searching.
+	// return null;
+	// }
+	// }
+	// return null;
+	// }
 
 	public int size() {
 		return postings.size();
@@ -110,7 +128,7 @@ public class PostingsList implements Externalizable {
 	}
 
 	@Override
-	public void writeExternal(ObjectOutput out) throws IOException {
+	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeInt(postings.size());
 		for (Posting posting : postings) {
 			out.writeObject(posting);

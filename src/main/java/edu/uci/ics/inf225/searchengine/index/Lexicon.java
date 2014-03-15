@@ -16,9 +16,15 @@ public class Lexicon implements Externalizable {
 
 	private int nextID;
 
+	// private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 4471344787615638118L;
+
 	public Lexicon() {
-		// terms = new HashMap<>(10000000);
-		terms = new TObjectIntHashMap<>(10000000);
+		this(10000000);
+	}
+
+	public Lexicon(int initialCapacity) {
+		terms = new TObjectIntHashMap<>(initialCapacity);
 		nextID = 1;
 	}
 

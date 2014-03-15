@@ -11,6 +11,7 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
 import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilter;
 import org.apache.lucene.analysis.util.CharArraySet;
 import org.apache.lucene.util.Version;
@@ -55,6 +56,11 @@ public class SimpleAnalyzer extends Analyzer {
 		 */
 		int configurationFlags = WordDelimiterFilter.STEM_ENGLISH_POSSESSIVE | WordDelimiterFilter.GENERATE_WORD_PARTS | WordDelimiterFilter.GENERATE_NUMBER_PARTS;
 		result = new WordDelimiterFilter(source, configurationFlags, null);
+
+		/*
+		 * Normalize accents and strange characters.
+		 */
+		result = new ASCIIFoldingFilter(result);
 
 		/*
 		 * Normalize tokens to lower-case.

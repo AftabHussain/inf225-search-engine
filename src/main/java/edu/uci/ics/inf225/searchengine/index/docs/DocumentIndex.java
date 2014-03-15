@@ -1,7 +1,7 @@
 package edu.uci.ics.inf225.searchengine.index.docs;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
-import edu.uci.ics.inf225.searchengine.index.TermIndex;
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 
 public interface DocumentIndex {
 
@@ -11,11 +11,11 @@ public interface DocumentIndex {
 
 	public WebPage getDoc(int docID);
 
-	public void prepare(TermIndex termIndex);
+	public void prepare(MultiFieldTermIndex multiTermIndex);
 
 	public void shutdown();
 
-	public void setTerms(int docID, int[] termIDs);
+	public void setTerms(int docID, String field, int[] termIDs);
 
-	public int[] getTerms(int docID);
+	public int[] getTerms(int docID, String field);
 }

@@ -14,6 +14,7 @@ import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.CosineSimilarityQueryRanker;
 import edu.uci.ics.inf225.searchengine.search.scoring.solvers.ScoringContributor;
 import edu.uci.ics.inf225.searchengine.search.scoring.updaters.TextCosineSimilarityScoreUpdater;
+import gnu.trove.map.hash.TObjectFloatHashMap;
 
 public class CosineSimilarityQueryRankingTest extends ScoreContributorTest {
 
@@ -98,7 +99,9 @@ public class CosineSimilarityQueryRankingTest extends ScoreContributorTest {
 
 	private static WebPage webPage(double euclideanLength) {
 		WebPage page = new WebPage();
-		page.setEuclideanLength((float) euclideanLength);
+		TObjectFloatHashMap<String> map = new TObjectFloatHashMap<>();
+		map.put(INDEX_FIELD, (float) euclideanLength);
+		page.setEuclideanLength(map);
 		return page;
 	}
 

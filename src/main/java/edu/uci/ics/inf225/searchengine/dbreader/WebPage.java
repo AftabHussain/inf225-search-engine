@@ -1,5 +1,7 @@
 package edu.uci.ics.inf225.searchengine.dbreader;
 
+import gnu.trove.map.hash.TObjectFloatHashMap;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +15,7 @@ public class WebPage {
 
 	private String htmlContent;
 
-	private float euclideanLength;
+	private TObjectFloatHashMap<String> euclideanLength;
 
 	private byte slashes;
 
@@ -21,6 +23,7 @@ public class WebPage {
 
 	public WebPage() {
 		links = new HashMap<>();
+		euclideanLength = new TObjectFloatHashMap<>(4);
 	}
 
 	public String getUrl() {
@@ -45,14 +48,14 @@ public class WebPage {
 	 * 
 	 * @return
 	 */
-	public float getEuclideanLength() {
-		return euclideanLength;
+	public float getEuclideanLength(String field) {
+		return euclideanLength.get(field);
 	}
 
-	public void setEuclideanLength(float euclideanLength) {
-		this.euclideanLength = euclideanLength;
+	public void setEuclideanLength(TObjectFloatHashMap<String> el) {
+		this.euclideanLength = el;
 	}
-
+	
 	public String getHtmlContent() {
 		return htmlContent;
 	}
@@ -91,6 +94,6 @@ public class WebPage {
 		this.url = null;
 		this.title = null;
 		this.links.clear();
-		this.euclideanLength = 0f;
+		this.euclideanLength = new TObjectFloatHashMap<>();
 	}
 }

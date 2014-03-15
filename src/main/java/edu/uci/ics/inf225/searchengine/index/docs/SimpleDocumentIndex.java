@@ -8,8 +8,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.map.MultiKeyMap;
+
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
-import edu.uci.ics.inf225.searchengine.index.TermIndex;
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 import edu.uci.ics.inf225.searchengine.utils.MapUtils;
 
 public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
@@ -18,7 +20,7 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 
 	private Map<Integer, String> docIDs = createDocIDsMap(100000);
 
-	private Map<Integer, int[]> termIDsPerDoc = new HashMap<>();
+	private MultiKeyMap termIDsPerDoc = new MultiKeyMap();
 
 	private Map<Integer, String> createDocIDsMap(int initialCapacity) {
 		return new HashMap<>(initialCapacity);
@@ -85,17 +87,17 @@ public class SimpleDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public void prepare(TermIndex termIndex) {
+	public void prepare(MultiFieldTermIndex termIndex) {
 		// Do nothing, so far.
 	}
 
 	@Override
-	public void setTerms(int docID, int[] termIDs) {
-		this.termIDsPerDoc.put(docID, termIDs);
+	public void setTerms(int docID, String field, int[] termIDs) {
+		this.termIDsPerDoc.put(docID, field, termIDs);
 	}
 
 	@Override
-	public int[] getTerms(int docID) {
-		return this.termIDsPerDoc.get(docID);
+	public int[] getTerms(int docID, String field) {
+		return (int[]) this.termIDsPerDoc.get(docID, field);
 	}
 }

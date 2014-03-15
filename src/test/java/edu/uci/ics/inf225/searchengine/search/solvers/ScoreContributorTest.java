@@ -14,6 +14,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Before;
 
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
@@ -29,11 +30,22 @@ import edu.uci.ics.inf225.searchengine.search.scoring.solvers.ScoringContributor
  */
 public abstract class ScoreContributorTest {
 
+	public static final String INDEX_FIELD = "test";
+
 	private ScoringContributor scoreContributor;
+
+	private MultiFieldTermIndex multiTermIndex;
 
 	@Before
 	public void setUp() throws Exception {
 		scoreContributor = createScoreContributor();
+		multiTermIndex = createMultiTermIndex();
+	}
+
+	protected MultiFieldTermIndex createMultiTermIndex() {
+		MultiFieldTermIndex multiTermIndex = new MultiFieldTermIndex();
+		multiTermIndex.putIndex(INDEX_FIELD, getTermIndex());
+		return multiTermIndex;
 	}
 
 	protected void runQuery(Map<String, PostingsList> postingsLists, List<String> allQueryTerms, Map<Integer, Double> expectedScores) {
@@ -49,7 +61,7 @@ public abstract class ScoreContributorTest {
 
 		QueryScorer queryScorer = new QueryScorer();
 
-		getQueryRanker().score(allQueryTerms, postingsLists, getTermIndex(), getDocIndex(), queryScorer);
+		getQueryRanker().score(allQueryTerms, postingsLists, multiTermIndex, getDocIndex(), queryScorer, INDEX_FIELD);
 
 		Assert.assertEquals("The number of scores is different from the expected one", expectedScores.size(), queryScorer.count());
 

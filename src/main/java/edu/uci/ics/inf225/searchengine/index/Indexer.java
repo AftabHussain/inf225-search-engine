@@ -8,9 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -51,46 +49,18 @@ public class Indexer {
 		return this.docIndex.addDoc(page);
 	}
 
-	public void indexTerms(List<String> terms, int docID, String field) {
-		TIntSet termIDs = new TIntHashSet(terms.size() * 2);
+	public void indexTerms(List<? extends Object> terms, int docID, String field) {
+		TIntSet termIDs = new TIntHashSet(terms.size());
 
 		TermIndex termIndex = this.getTermIndexForField(field);
 
-		for (String term : terms) {
+		for (Object term : terms) {
 			int termID = lexicon.getTermID(term);
 			termIndex.newTerm(docID, termID);
 			termIDs.add(termID);
 		}
 
-		List<TwoGram> twoGrams = index2Grams(docID, terms, termIndex);
-
-		for (TwoGram twoGram : twoGrams) {
-			Integer termID = lexicon.getTermID(twoGram);
-			termIndex.newTerm(docID, termID);
-			termIDs.add(termID);
-		}
-
-		this.docIndex.setTerms(docID, termIDs.toArray());
-	}
-
-	private List<TwoGram> index2Grams(int docID, List<String> terms, TermIndex termIndex) {
-		TwoGram[] twoGrams = new TwoGram[terms.size() - 1];
-
-		String previousTerm = null;
-		int i = 0;
-		for (Iterator<String> iterator = terms.iterator(); iterator.hasNext();) {
-			String term = iterator.next();
-
-			if (previousTerm != null) {
-				TwoGram tg = new TwoGram();
-				tg.setTerms(previousTerm, term);
-
-				twoGrams[i++] = tg;
-			}
-			previousTerm = term;
-		}
-
-		return Arrays.asList(twoGrams);
+		this.docIndex.setTerms(docID, field, termIDs.toArray());
 	}
 
 	private TermIndex getTermIndexForField(String field) {

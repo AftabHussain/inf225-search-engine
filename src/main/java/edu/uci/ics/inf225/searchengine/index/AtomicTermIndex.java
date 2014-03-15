@@ -1,7 +1,6 @@
 package edu.uci.ics.inf225.searchengine.index;
 
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
-import edu.uci.ics.inf225.searchengine.index.postings.DocIDPostingComparator;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -22,28 +21,14 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 
 	private static final long serialVersionUID = 1L;
 
-	// private Map<Integer, PostingsList> termsMap;
 	private TIntObjectHashMap<PostingsList> termsMap;
 
-	private Lexicon lexicon;
-
-	// private HashMap<Integer, PostingsList> createTermsMap(int
-	// initialCapacity) {
-	// return new HashMap<>(initialCapacity);
 	private TIntObjectHashMap<PostingsList> createTermsMap(int initialCapacity) {
 		return new TIntObjectHashMap<>(initialCapacity);
 	}
 
 	public AtomicTermIndex() {
 		this(3500000);
-	}
-
-	public Lexicon getLexicon() {
-		return lexicon;
-	}
-
-	public void setLexicon(Lexicon lexicon) {
-		this.lexicon = lexicon;
 	}
 
 	public AtomicTermIndex(int initialCapacity) {
@@ -61,10 +46,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	@Override
 	public void writeExternal(final ObjectOutput out) throws IOException {
 		out.writeInt(termsMap.size());
-		// for (Entry<Integer, PostingsList> entry : termsMap.entrySet()) {
-		// out.writeInt(entry.getKey());
-		// out.writeObject(entry.getValue());
-		// }
 		termsMap.forEachEntry(new TIntObjectProcedure<PostingsList>() {
 
 			@Override
@@ -125,21 +106,15 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 	@Override
 	public boolean equals(Object obj) {
 		AtomicTermIndex another = (AtomicTermIndex) obj;
-		// return MapUtils.mapsAreEqual(this.termsMap, another.termsMap);
 		return this.termsMap.equals(another.termsMap);
 	}
 
 	@Override
 	public void prepare(DocumentIndex docIndex) {
-		int docCollectionSize = docIndex.count();
+		final int docCollectionSize = docIndex.count();
 
-		// Iterator<PostingsList> postingsListIterator =
-		// this.termsMap.values().iterator();
-		Iterator<PostingsList> postingsListIterator = this.termsMap.valueCollection().iterator();
-
-		while (postingsListIterator.hasNext()) {
-			PostingsList postingsList = postingsListIterator.next();
-			int documentFrequency = postingsList.size();
+		for (PostingsList postingsList : this.termsMap.valueCollection()) {
+			final int documentFrequency = postingsList.size();
 
 			Iterator<Posting> postingIterator = postingsList.iterator();
 
@@ -147,10 +122,6 @@ public class AtomicTermIndex implements TermIndex, Externalizable {
 				Posting posting = postingIterator.next();
 				posting.calculateTFIDF(documentFrequency, docCollectionSize);
 			}
-			/*
-			 * Sort it by DocID to compute cosine similarity faster.
-			 */
-			postingsList.sort(new DocIDPostingComparator());
 		}
 	}
 

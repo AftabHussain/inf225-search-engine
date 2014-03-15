@@ -16,6 +16,7 @@ import edu.uci.ics.inf225.searchengine.index.IndexGlobals;
 import edu.uci.ics.inf225.searchengine.index.Indexer;
 import edu.uci.ics.inf225.searchengine.index.Lexicon;
 import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
+import edu.uci.ics.inf225.searchengine.index.TwoGram;
 import edu.uci.ics.inf225.searchengine.index.docs.DocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.docs.HSQLDocumentIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingGlobals;
@@ -143,17 +144,13 @@ public class IndexWriterController {
 			 * Tokenize page contents (body).
 			 */
 			PageTokenStream tokenStream = tokenizer.tokenize(page.getContent(), cachedPageToken);
-			processTokenStream(docID, tokenStream, IndexGlobals.BODY_FIELD);
+			processTokenStream(docID, tokenStream, IndexGlobals.BODY_FIELD, IndexGlobals.BODY_2GRAM_FIELD);
 
 			/*
 			 * Tokenize page title.
 			 */
 			tokenStream = tokenizer.tokenize(page.getTitle(), cachedPageToken);
-			processTokenStream(docID, tokenStream, IndexGlobals.TITLE_FIELD);
-
-			/*
-			 * TODO Process anchor links.
-			 */
+			processTokenStream(docID, tokenStream, IndexGlobals.TITLE_FIELD, IndexGlobals.TITLE_2GRAM_FIELD);
 		} catch (IOException e) {
 			log.error("Page {} could not be processed: {}", page.getUrl(), e.getMessage());
 		}
@@ -170,22 +167,37 @@ public class IndexWriterController {
 	 *            One value from {@link PostingGlobals}.
 	 * @throws IOException
 	 */
-	private void processTokenStream(int docID, PageTokenStream tokenStream, String field) throws IOException {
+	private void processTokenStream(int docID, PageTokenStream tokenStream, String field, String twoGramField) throws IOException {
 		List<String> terms = new LinkedList<>();
+		List<TwoGram> twoGrams = new LinkedList<>();
+
+		String previousTerm = null;
 		while (tokenStream.increment()) {
 			PageToken token = tokenStream.next();
 			terms.add(token.getTerm());
+
+			if (previousTerm != null) {
+				TwoGram twoGram = new TwoGram();
+				twoGram.setTerms(previousTerm, token.getTerm());
+				twoGrams.add(twoGram);
+				twoGram = null; // Help GC.
+			}
+			previousTerm = token.getTerm();
 		}
 		tokenStream.close();
 		if (!terms.isEmpty()) {
 			indexer.indexTerms(terms, docID, field);
+		}
+
+		if (!twoGrams.isEmpty()) {
+			indexer.indexTerms(twoGrams, docID, twoGramField);
 		}
 	}
 
 	public void prepareIndex() {
 		console.info("Preparing index...");
 		this.termIndex.prepare(docIndex);
-		this.docIndex.prepare(termIndex.getIndex(IndexGlobals.BODY_FIELD));
+		this.docIndex.prepare(termIndex);
 		console.info("Index has been prepared.");
 	}
 

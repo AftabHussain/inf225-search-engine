@@ -17,10 +17,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.map.MultiKeyMap;
+
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
-import edu.uci.ics.inf225.searchengine.index.TermIndex;
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
+import gnu.trove.map.hash.TObjectFloatHashMap;
 
 public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
@@ -52,7 +55,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	 */
 	private Map<Integer, Object[]> docsData;
 
-	private Map<Integer, int[]> termsPerDoc;
+	private MultiKeyMap termsPerDoc;
 
 	private int counter;
 
@@ -60,7 +63,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 
 	public HSQLDocumentIndex() throws ClassNotFoundException, SQLException {
 		docsData = new HashMap<Integer, Object[]>();
-		termsPerDoc = new HashMap<>(150000);
+		termsPerDoc = new MultiKeyMap();
 		connect();
 		// destroyDatabase();
 		createInsertPreparedStatement();
@@ -153,6 +156,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	private void initDocData(WebPage page, Integer docID) {
 		Object[] docData = createEmptyDocData();
 		docData[SLASHES_INDEX] = computeSlashes(page.getUrl());
+		docData[EUCLIDEAN_LENGTH_INDEX] = new TObjectFloatHashMap<String>();
 		this.docsData.put(docID, docData);
 	}
 
@@ -193,7 +197,7 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 				Object[] docData = this.docsData.get(docID);
 				if (docData != null) {
 					if (docData[EUCLIDEAN_LENGTH_INDEX] != null) {
-						page.setEuclideanLength((float) docData[EUCLIDEAN_LENGTH_INDEX]);
+						page.setEuclideanLength((TObjectFloatHashMap<String>) docData[EUCLIDEAN_LENGTH_INDEX]);
 					}
 
 					if (docData[SLASHES_INDEX] != null) {
@@ -245,34 +249,33 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public void prepare(TermIndex bodyTermIndex) {
-		for (int i = 1; i <= counter; i++) {
-			// Taking advantage of predictable doc IDs...
-			List<Posting> postings = getPostingsForDoc(i, bodyTermIndex);
+	public void prepare(MultiFieldTermIndex multiTermIndex) {
+		for (String field : multiTermIndex.fields()) {
 
-			/*
-			 * Compute metadata.
-			 */
-			Object[] aDocData = docsData.get(i);
+			for (int i = 1; i <= counter; i++) {
+				// Taking advantage of predictable doc IDs...
+				List<Posting> postings = getPostingsForDoc(i, multiTermIndex, field);
 
-			/*
-			 * Calculate Eucledian Length.
-			 */
-			if (postings.isEmpty()) {
-				aDocData[EUCLIDEAN_LENGTH_INDEX] = Float.MAX_VALUE;
-			} else {
-				aDocData[EUCLIDEAN_LENGTH_INDEX] = calculateEuclideanLength(postings);
+				/*
+				 * Compute metadata.
+				 */
+				Object[] aDocData = docsData.get(i);
+
+				/*
+				 * Calculate Eucledian Length.
+				 */
+				((TObjectFloatHashMap<String>) aDocData[EUCLIDEAN_LENGTH_INDEX]).put(field, calculateEuclideanLength(postings));
 			}
 		}
 	}
 
-	private List<Posting> getPostingsForDoc(int docID, TermIndex termIndex) {
+	private List<Posting> getPostingsForDoc(int docID, MultiFieldTermIndex multiTermIndex, String field) {
 		List<Posting> postings = new LinkedList<>();
 
-		int[] terms = this.getTerms(docID);
+		int[] terms = this.getTerms(docID, field);
 
 		for (int i = 0; i < terms.length; i++) {
-			PostingsList postingsList = termIndex.postingsList(terms[i]);
+			PostingsList postingsList = multiTermIndex.getIndex(field).postingsList(terms[i]);
 
 			Posting posting = postingsList.get(docID);
 			if (posting != null) {
@@ -293,13 +296,21 @@ public class HSQLDocumentIndex implements DocumentIndex, Externalizable {
 	}
 
 	@Override
-	public void setTerms(int docID, int[] termIDs) {
-		this.termsPerDoc.put(docID, termIDs);
+	public void setTerms(int docID, String field, int[] termIDs) {
+		// Map<String, int[]> termsPerField = this.termsPerDoc.get(docID);
+		// if (termsPerField == null) {
+		// termsPerField = new HashMap<>(4);
+		// this.termsPerDoc.put(docID, termsPerField);
+		// }
+		// termsPerField.put(field, termIDs);
+		this.termsPerDoc.put(docID, field, termIDs);
 	}
 
 	@Override
-	public int[] getTerms(int docID) {
-		int[] termIDs = this.termsPerDoc.get(docID);
+	public int[] getTerms(int docID, String field) {
+		// Map<String, int[]> termsPerField = this.termsPerDoc.get(docID);
+		// int[] termIDs = termsPerField.get(key);
+		int[] termIDs = (int[]) this.termsPerDoc.get(docID, field);
 
 		if (termIDs != null) {
 			return termIDs;

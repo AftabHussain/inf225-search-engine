@@ -4,7 +4,7 @@ public class DocScorer implements Comparable<DocScorer> {
 
 	public static double TEXT_COSINE_WEIGHT = 1d;
 	public static double TITLE_COSINE_WEIGHT = 1d;
-	public static double SLASHES_WEIGHT = 0.2d;
+	public static double SLASHES_WEIGHT = 0.3d;
 
 	private int docID;
 
@@ -60,7 +60,6 @@ public class DocScorer implements Comparable<DocScorer> {
 	}
 
 	public double score() {
-		// TODO Implement scoring formula.
 		// The following is BETTER:
 		// Higher cosine similarity.
 		// Lower number of slashes.

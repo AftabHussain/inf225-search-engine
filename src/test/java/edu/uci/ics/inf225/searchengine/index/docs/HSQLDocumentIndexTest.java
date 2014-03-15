@@ -12,22 +12,27 @@ import org.junit.Test;
 
 import edu.uci.ics.inf225.searchengine.dbreader.WebPage;
 import edu.uci.ics.inf225.searchengine.index.Lexicon;
+import edu.uci.ics.inf225.searchengine.index.MultiFieldTermIndex;
 import edu.uci.ics.inf225.searchengine.index.TermIndex;
 import edu.uci.ics.inf225.searchengine.index.postings.Posting;
 import edu.uci.ics.inf225.searchengine.index.postings.PostingsList;
 
 public class HSQLDocumentIndexTest {
 
+	private static final String INDEX_FIELD = "test";
 	private static final double COMPARISON_DELTA = 0.0001;
 	private HSQLDocumentIndex docIndex;
 
+	private MultiFieldTermIndex multiTermIndex;
 	private TermIndex termIndex;
 	private Lexicon lexicon;
 
 	@Before
 	public void setup() throws ClassNotFoundException, SQLException {
 		lexicon = new Lexicon();
+		multiTermIndex = new MultiFieldTermIndex();
 		termIndex = mock(TermIndex.class);
+		multiTermIndex.putIndex(INDEX_FIELD, termIndex);
 		docIndex = new HSQLDocumentIndex();
 		docIndex.destroyDatabase();
 	}
@@ -58,19 +63,19 @@ public class HSQLDocumentIndexTest {
 		int doc2 = docIndex.addDoc(p2);
 		int doc3 = docIndex.addDoc(p3);
 
-		docIndex.setTerms(doc1, ints(id("Desc1"), id("Desc2"), id("Desc3")));
-		docIndex.setTerms(doc2, ints(id("Desc3")));
-		docIndex.setTerms(doc3, ints(id("Desc2"), id("Desc3")));
+		docIndex.setTerms(doc1, INDEX_FIELD, ints(id("Desc1"), id("Desc2"), id("Desc3")));
+		docIndex.setTerms(doc2, INDEX_FIELD, ints(id("Desc3")));
+		docIndex.setTerms(doc3, INDEX_FIELD, ints(id("Desc2"), id("Desc3")));
 
 		when(termIndex.postingsList(id("Desc1"))).thenReturn(postings(posting(doc1, 2.1f)));
 		when(termIndex.postingsList(id("Desc2"))).thenReturn(postings(posting(doc1, 3.2f), posting(doc3, 3.3f)));
 		when(termIndex.postingsList(id("Desc3"))).thenReturn(postings(posting(doc1, 4.3f), posting(doc2, 4.4f), posting(doc3, 4.5f)));
 
-		docIndex.prepare(termIndex);
+		docIndex.prepare(multiTermIndex);
 
-		Assert.assertEquals("Wrong Euclidean Distance for doc1", ed(2.1f, 3.2f, 4.3f), docIndex.getDoc(doc1).getEuclideanLength(), COMPARISON_DELTA);
-		Assert.assertEquals("Wrong Euclidean Distance for doc2", ed(4.4f), docIndex.getDoc(doc2).getEuclideanLength(), COMPARISON_DELTA);
-		Assert.assertEquals("Wrong Euclidean Distance for doc3", ed(3.3f, 4.5f), docIndex.getDoc(doc3).getEuclideanLength(), COMPARISON_DELTA);
+		Assert.assertEquals("Wrong Euclidean Distance for doc1", ed(2.1f, 3.2f, 4.3f), docIndex.getDoc(doc1).getEuclideanLength(INDEX_FIELD), COMPARISON_DELTA);
+		Assert.assertEquals("Wrong Euclidean Distance for doc2", ed(4.4f), docIndex.getDoc(doc2).getEuclideanLength(INDEX_FIELD), COMPARISON_DELTA);
+		Assert.assertEquals("Wrong Euclidean Distance for doc3", ed(3.3f, 4.5f), docIndex.getDoc(doc3).getEuclideanLength(INDEX_FIELD), COMPARISON_DELTA);
 	}
 
 	private static double ed(Float... ws) {

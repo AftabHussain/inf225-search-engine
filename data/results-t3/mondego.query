@@ -1,0 +1,37 @@
+Fields: body,body2,title,title2,
+http://mondego.ics.uci.edu/datasets/wikipedia-events/ (0.5630611149094381)
+Txt Cos Sim=[0.48806111490943815] Slashes=[4] Title Cos Sim=[0.0] 7.6843653,16.948965,6.3896914,8.048367,
+https://mailman.ics.uci.edu/mailman/admin/mondego (0.4582134968810385)
+Txt Cos Sim=[0.3982134968810385] Slashes=[5] Title Cos Sim=[0.0] 13.91177,23.272558,5.8277206,5.7544456,
+https://mailman.ics.uci.edu/mailman/listinfo/mondego (0.4017165363567748)
+Txt Cos Sim=[0.3417165363567748] Slashes=[5] Title Cos Sim=[0.0] 22.404888,42.403652,5.449116,5.7458954,
+https://mailman.ics.uci.edu/mailman/private/mondego/ (0.38002652008317095)
+Txt Cos Sim=[0.32002652008317095] Slashes=[5] Title Cos Sim=[0.0] 11.719153,18.674135,6.4523487,6.455029,
+http://mondego.ics.uci.edu/datasets/ (0.3752973679932942)
+Txt Cos Sim=[0.27529736799329424] Slashes=[3] Title Cos Sim=[0.0] 13.623232,25.065863,4.270801,4.528591,
+http://mondego.ics.uci.edu/datasets/wikipedia-events/files/ (0.3636746667770389)
+Txt Cos Sim=[0.3036746667770389] Slashes=[5] Title Cos Sim=[0.0] 12.35019,23.142517,7.2613072,9.478046,
+http://mondego.ics.uci.edu/ (0.2766992521702609)
+Txt Cos Sim=[0.12669925217026093] Slashes=[2] Title Cos Sim=[0.0] 43.724445,82.27476,6.015462,7.188064,
+http://www.ics.uci.edu/~lopes/ (0.26172289173306584)
+Txt Cos Sim=[0.16172289173306584] Slashes=[3] Title Cos Sim=[0.0] 30.17158,62.48562,7.0558248,8.304856,
+http://www.ics.uci.edu/~lopes/datasets/ (0.2192960740863102)
+Txt Cos Sim=[0.1442960740863102] Slashes=[4] Title Cos Sim=[0.0] 25.991282,56.24304,5.597739,8.298672,
+http://www.ics.uci.edu/~lopes/datasets/Koders-log-2007.html (0.19276089691137963)
+Txt Cos Sim=[0.13276089691137963] Slashes=[5] Title Cos Sim=[0.0] 28.249582,62.71693,7.7215214,11.583363,
+http://www.ics.uci.edu/~lopes/datasets/SDS_source-repo-18k.html (0.1867855333993898)
+Txt Cos Sim=[0.1267855333993898] Slashes=[5] Title Cos Sim=[0.0] 29.580976,64.40179,10.211744,12.618694,
+http://www.ics.uci.edu/~lopes/datasets/sourcerer-maven-aug12.html (0.17523261208879268)
+Txt Cos Sim=[0.11523261208879268] Slashes=[5] Title Cos Sim=[0.0] 32.546688,67.76571,8.657017,11.583364,
+http://www.ics.uci.edu/~djp3/classes/2006_03_30_ICS105/Resources/AnteaterIdol.html (0.15394782137797838)
+Txt Cos Sim=[0.11109067852083554] Slashes=[7] Title Cos Sim=[0.0] 43.922993,98.16089,7.1126037,10.079958,
+https://mailman.ics.uci.edu/mailman/listinfo/ (0.15089195530322613)
+Txt Cos Sim=[0.07589195530322615] Slashes=[4] Title Cos Sim=[0.0] 49.418148,97.22009,6.936345,7.8630958,
+https://mailman.ics.uci.edu/mailman/admin (0.15068935624708463)
+Txt Cos Sim=[0.07568935624708463] Slashes=[4] Title Cos Sim=[0.0] 49.550426,97.49578,8.480294,10.580293,
+https://mailman.ics.uci.edu/mailman/listinfo/informatics-faculty (0.13588381903912145)
+Txt Cos Sim=[0.07588381903912146] Slashes=[5] Title Cos Sim=[0.0] 49.423447,97.37976,6.936345,7.8630958,
+https://mailman.ics.uci.edu/mailman/listinfo/sislgram. (0.13574546552411548)
+Txt Cos Sim=[0.0757454655241155] Slashes=[5] Title Cos Sim=[0.0] 49.51372,97.38652,6.936345,7.8630958,
+http://www.ics.uci.edu/~djp3/classes/2006_03_30_ICS105/index.html (0.13327285605846034)
+Txt Cos Sim=[0.08327285605846034] Slashes=[6] Title Cos Sim=[0.0] 45.037964,105.66995,7.1126037,10.079958,
